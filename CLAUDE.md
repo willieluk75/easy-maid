@@ -4,8 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+### Worker App (root)
 ```bash
 npm run dev      # Start development server (http://localhost:3000)
+npm run build    # Build for production
+npm run lint     # Run ESLint
+```
+
+### Employer App (employer-app/)
+```bash
+cd employer-app
+npm run dev      # Start development server (http://localhost:3001)
 npm run build    # Build for production
 npm run lint     # Run ESLint
 ```
@@ -22,9 +31,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## Architecture
 
-**Stack:** Next.js 15 (App Router), TypeScript, Tailwind CSS, Supabase
+**Stack:** Next.js 15/16 (App Router), TypeScript, Tailwind CSS, Supabase
 
-**Path alias:** `@/*` → `./src/*`
+**Dual-App Setup:** Same repo, two independent Next.js apps.
+- Worker App: `src/` (root), port 3000
+- Employer App: `employer-app/src/`, port 3001
+- Shared Supabase project: `apytwhemutebpokzkpis` (Tokyo)
+
+**Path alias:** `@/*` → `./src/*` (both apps)
 
 **UI language:** Traditional Chinese (zh-TW)
 

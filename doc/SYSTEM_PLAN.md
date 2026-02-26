@@ -236,6 +236,49 @@ CREATE TABLE worker_bookmarks (
 | Feed 資料 | RPC `get_feed()` | 一次 round-trip 取回 join 資料 |
 | 圖片儲存 | Supabase Storage public bucket | 簡單直接，公開 URL |
 | 角色選擇 | Signup 時選擇 | 比事後判斷更清晰 |
+| **部署架構** | **同一 repo，兩個獨立 Next.js App 目錄** | Worker 和 Employer 功能完全分開，部署到不同 domain，共用同一 Supabase DB |
+
+---
+
+## Dual-App 架構說明（2026-02）
+
+### 目錄結構
+```
+easy_maid_Feb_start/          ← repo root
+│
+├── src/                      ← Worker App（現有）
+├── package.json              ← Worker App（port 3000）
+│
+├── employer-app/             ← Employer App（獨立 Next.js project）
+│   ├── src/app/
+│   ├── package.json          ← port 3001
+│   └── .env.local            ← 同 NEXT_PUBLIC_SUPABASE_URL/ANON_KEY
+│
+└── supabase/                 ← 共用 DB migrations
+```
+
+### 兩個 App 的職責分工
+
+| 功能 | Worker App (root, port 3000) | Employer App (employer-app/, port 3001) |
+|------|------------------------------|------------------------------------------|
+| Auth | ✅ Email/Google/Facebook | ✅ Email/Google |
+| 外傭登記/Edit | ✅ /worker/register, /worker/edit | ✗ |
+| Feed | ✅ /feed | ✗ |
+| 外傭列表瀏覽 | ✅ /workers | ✅ 主要功能 |
+| 外傭詳細 | ✅ /workers/[id] | ✅ 含「聯絡」按鈕 |
+| 詢問系統 | ✅ /inquiries（收到）| ✅ /inquiries（發出）|
+| 收藏外傭 | ✗ | ✅ /bookmarks |
+| Admin | ✅ /admin/* | ✗ |
+
+### 啟動指令
+```bash
+# Worker App
+npm run dev            # http://localhost:3000
+
+# Employer App
+cd employer-app
+npm run dev            # http://localhost:3001
+```
 
 ---
 
