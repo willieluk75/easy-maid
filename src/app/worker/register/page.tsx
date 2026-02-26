@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { WorkerFormData, initialFormData } from './types';
 import Step1Basic     from './steps/Step1Basic';
-import Step2Contact   from './steps/Step2Contact';
+import Step2Contact, { isValidHKID } from './steps/Step2Contact';
 import Step3Skills    from './steps/Step3Skills';
 import Step4Languages from './steps/Step4Languages';
 import Step5Overseas  from './steps/Step5Overseas';
@@ -49,6 +49,12 @@ export default function WorkerRegisterPage() {
     setForm(f => ({ ...f, ...fields }));
 
   const goNext = () => {
+    // Step 2 (index 1) — validate HKID before proceeding
+    if (step === 1 && form.hkid.trim() && !isValidHKID(form.hkid)) {
+      setError('請輸入正確的 HKID 格式，例如 A123456(7)');
+      return;
+    }
+    setError('');
     setStep(s => s + 1);
     window.scrollTo({ top: 0 });
   };
