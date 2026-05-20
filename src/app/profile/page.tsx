@@ -295,8 +295,11 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f7f7f7]">
-        <p className="text-[#929292]">載入中...</p>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center space-y-3">
+          <span className="text-4xl">⏳</span>
+          <p className="text-sm text-[#6a6a6a]">載入中...</p>
+        </div>
       </div>
     );
   }
@@ -304,20 +307,16 @@ export default function ProfilePage() {
   // No profile yet
   if (!worker) {
     return (
-      <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center space-y-4 max-w-sm w-full">
-          <div className="w-16 h-16 bg-[#fff0f3] rounded-full flex items-center justify-center mx-auto">
-            <svg className="w-8 h-8 text-[#ff385c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
+          <span className="text-5xl">📋</span>
           <h1 className="text-xl font-bold text-[#222222]">尚未登記資料</h1>
-          <p className="text-[#6a6a6a] text-sm">請填寫你的外傭資料以開始登記</p>
+          <p className="text-sm text-[#6a6a6a]">請填寫你的外傭資料以開始登記</p>
           <Link href="/worker/register"
-            className="inline-block w-full py-3.5 bg-[#ff385c] text-white rounded-[8px] font-semibold text-base text-center">
+            className="inline-block w-full h-12 bg-[#222222] hover:bg-black text-white rounded-[8px] font-semibold text-base text-center flex items-center justify-center">
             立即登記
           </Link>
-          <button onClick={handleSignOut} className="text-sm text-[#929292] underline mt-2">登出</button>
+          <button onClick={handleSignOut} className="text-sm text-[#6a6a6a] underline mt-2">登出</button>
         </div>
       </div>
     );
@@ -327,7 +326,7 @@ export default function ProfilePage() {
   const activeSkills = SKILLS_LIST.filter(s => worker[s.key as keyof Worker]);
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] pb-10">
+    <div className="min-h-screen bg-white pb-10">
       {/* Caption Modal */}
       {showCaptionModal && (
         <div className="fixed inset-0 z-50 bg-black/70 flex flex-col">
@@ -388,7 +387,7 @@ export default function ProfilePage() {
 
         <div className="flex items-center gap-4">
           <div className="relative flex-shrink-0" onClick={() => photoInputRef.current?.click()}>
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-[#dddddd] cursor-pointer">
+            <div className="w-20 h-20 rounded-full border-2 border-[#f2f2f2] overflow-hidden bg-[#dddddd] cursor-pointer">
               {worker.photo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={worker.photo_url} alt={worker.name} className="w-full h-full object-cover" />
@@ -413,7 +412,7 @@ export default function ProfilePage() {
           </div>
           <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
           <div>
-            <h1 className="text-[22px] font-semibold text-[#222222]" style={{ letterSpacing: '-0.44px' }}>{worker.name}</h1>
+            <h1 className="text-[22px] font-semibold text-[#222222] tracking-[-0.44px]">{worker.name}</h1>
             <p className="text-sm text-[#6a6a6a]">{worker.nationality}</p>
             <p className="text-xs text-[#929292] mt-0.5">點擊頭像更換照片</p>
           </div>
@@ -423,14 +422,14 @@ export default function ProfilePage() {
       {/* Action buttons */}
       <div className="px-4 mt-4 flex gap-3">
         <Link href="/worker/edit"
-          className="flex-1 flex items-center justify-center py-3 bg-[#222222] text-white rounded-[8px] font-semibold gap-2">
+          className="flex-1 flex items-center justify-center h-12 bg-[#222222] hover:bg-black text-white rounded-[8px] font-semibold gap-2 transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
           修改資料
         </Link>
         <Link href="/feed"
-          className="flex-1 flex items-center justify-center py-3 border border-[#dddddd] rounded-[8px] text-[#222222] font-semibold gap-2">
+          className="flex-1 flex items-center justify-center h-12 bg-[#222222] hover:bg-black text-white rounded-[8px] font-semibold gap-2 transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
@@ -584,11 +583,8 @@ export default function ProfilePage() {
                 onClick={() => mediaInputRef.current?.click()}
                 className="w-full py-8 flex flex-col items-center gap-2 text-[#929292] border-2 border-dashed border-[#dddddd] rounded-[8px]"
               >
-                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-sm">點擊上傳相片或影片</span>
+                <span className="text-3xl">📷</span>
+                <span className="text-sm text-[#6a6a6a]">點擊上傳相片或影片</span>
               </button>
             ) : (
               <div className="grid grid-cols-3 gap-2">

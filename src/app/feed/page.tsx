@@ -46,7 +46,6 @@ export default function FeedPage() {
   const handleLike = async (item: FeedItem) => {
     if (!userId) { router.push('/signin'); return; }
 
-    // Optimistic update
     setItems(prev => prev.map(it =>
       it.id !== item.id ? it : {
         ...it,
@@ -69,7 +68,6 @@ export default function FeedPage() {
   const handleBookmark = async (item: FeedItem) => {
     if (!userId) { router.push('/signin'); return; }
 
-    // Optimistic update
     setItems(prev => prev.map(it =>
       it.id !== item.id ? it : { ...it, bookmarked: !it.bookmarked }
     ));
@@ -87,17 +85,23 @@ export default function FeedPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <p className="text-[#6a6a6a] text-[14px]">載入中...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4">
+        <div className="w-16 h-16 rounded-2xl bg-[#f7f7f7] flex items-center justify-center">
+          <svg className="w-8 h-8 text-[#c1c1c1] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <p className="text-sm text-[#6a6a6a] font-normal">正在載入動態...</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#f7f7f7]">
-      {/* Top nav — Airbnb style */}
+      {/* Top nav */}
       <div className="sticky top-0 z-10 bg-white border-b border-[#f2f2f2] px-6 py-4 flex items-center justify-between">
-        <h1 className="page-title-airbnb">動態</h1>
+        <h1 className="text-[28px] font-bold text-[#222222]">動態</h1>
         <div className="flex items-center gap-3">
           {userId ? (
             <Link href="/profile" className="text-[14px] text-[#222222] font-semibold hover:text-[#ff385c] transition-colors">我的資料</Link>
@@ -108,17 +112,32 @@ export default function FeedPage() {
       </div>
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-[#929292] space-y-3">
-          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <p className="text-[14px]">暫時沒有帖子</p>
+        <div className="flex flex-col items-center justify-center py-28 gap-5">
+          <div className="w-20 h-20 rounded-full bg-[#fff3f5] flex items-center justify-center">
+            <svg className="w-10 h-10 text-[#ff385c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div className="text-center space-y-1">
+            <p className="text-base font-semibold text-[#222222]">暫時沒有動態</p>
+            <p className="text-sm text-[#6a6a6a] font-normal">快啲去探索更多內容啦</p>
+          </div>
+          <Link
+            href="/"
+            className="mt-2 px-6 py-3 bg-[#222222] text-white text-sm font-semibold rounded-full hover:bg-[#222222]/90 transition-colors"
+          >
+            開始探索
+          </Link>
         </div>
       ) : (
         <div className="max-w-[512px] mx-auto py-4 px-4 space-y-4">
           {items.map(item => (
-            <article key={item.id} className="feed-card-airbnb">
+            <article
+              key={item.id}
+              className="bg-white rounded-[20px] overflow-hidden"
+              style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}
+            >
               {/* Worker info row */}
               <div className="flex items-center gap-3 px-4 py-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden bg-[#f7f7f7] flex-shrink-0">
@@ -135,14 +154,14 @@ export default function FeedPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-[#222222] truncate">{item.worker_name}</p>
+                  <p className="text-base font-semibold text-[#222222] truncate">{item.worker_name}</p>
                   {item.nationality && (
-                    <p className="text-[12px] text-[#6a6a6a]">{item.nationality}</p>
+                    <span className="text-xs bg-[#f2f2f2] px-2 py-0.5 rounded-full text-[#6a6a6a] font-normal">{item.nationality}</span>
                   )}
                 </div>
               </div>
 
-              {/* Media — Airbnb 16:10 aspect */}
+              {/* Media */}
               <div className="bg-black aspect-[16/10]">
                 {item.type === 'video' ? (
                   <video
@@ -156,18 +175,18 @@ export default function FeedPage() {
                   <img
                     src={item.url}
                     alt={item.caption ?? ''}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain rounded-[8px]"
                   />
                 )}
               </div>
 
-              {/* Actions — Airbnb circular icon buttons */}
+              {/* Actions */}
               <div className="px-4 pt-3 pb-1 flex items-center">
                 {/* Like */}
                 <div className="flex items-center">
                   <button
                     onClick={() => handleLike(item)}
-                    className="icon-btn-airbnb group"
+                    className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-all"
                     aria-label={item.liked ? '取消讚好' : '讚好'}
                   >
                     <svg
@@ -192,7 +211,7 @@ export default function FeedPage() {
                 {/* Bookmark */}
                 <button
                   onClick={() => handleBookmark(item)}
-                  className="icon-btn-airbnb group"
+                  className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-all"
                   aria-label={item.bookmarked ? '取消收藏' : '收藏'}
                 >
                   <svg
@@ -211,10 +230,8 @@ export default function FeedPage() {
               {/* Caption */}
               {item.caption && (
                 <div className="px-4 pb-3">
-                  <p className="text-[14px] text-[#222222] leading-[1.43]">
-                    <span className="font-semibold mr-1">{item.worker_name}</span>
-                    {item.caption}
-                  </p>
+                  <p className="text-[22px] font-semibold tracking-[-0.44px] text-[#222222] mb-1">{item.worker_name}</p>
+                  <p className="text-sm text-[#6a6a6a] font-normal leading-[1.43]">{item.caption}</p>
                 </div>
               )}
 
