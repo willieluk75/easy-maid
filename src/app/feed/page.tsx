@@ -46,7 +46,6 @@ export default function FeedPage() {
   const handleLike = async (item: FeedItem) => {
     if (!userId) { router.push('/signin'); return; }
 
-    // Optimistic update
     setItems(prev => prev.map(it =>
       it.id !== item.id ? it : {
         ...it,
@@ -69,7 +68,6 @@ export default function FeedPage() {
   const handleBookmark = async (item: FeedItem) => {
     if (!userId) { router.push('/signin'); return; }
 
-    // Optimistic update
     setItems(prev => prev.map(it =>
       it.id !== item.id ? it : { ...it, bookmarked: !it.bookmarked }
     ));
@@ -87,47 +85,68 @@ export default function FeedPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-400">載入中...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4">
+        <div className="w-16 h-16 rounded-[16px] bg-[#f7f7f7] flex items-center justify-center">
+          <svg className="w-8 h-8 text-[#c1c1c1] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <p className="text-sm text-[#6a6a6a] font-normal">正在載入動態...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#f7f7f7]">
       {/* Top nav */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
-        <h1 className="text-base font-bold text-gray-900">外傭動態</h1>
+      <div className="sticky top-0 z-10 bg-white border-b border-[#f2f2f2] px-6 py-4 flex items-center justify-between">
+        <h1 className="text-[28px] font-bold text-[#222222]">動態</h1>
         <div className="flex items-center gap-3">
           {userId ? (
-            <Link href="/profile" className="text-sm text-blue-600 font-medium">我的資料</Link>
+            <Link href="/profile" className="text-[14px] text-[#222222] font-semibold hover:text-[#ff385c] transition-colors">我的資料</Link>
           ) : (
-            <Link href="/signin" className="text-sm text-blue-600 font-medium">登入</Link>
+            <Link href="/signin" className="text-[14px] text-[#222222] font-semibold hover:text-[#ff385c] transition-colors">登入</Link>
           )}
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-gray-400 space-y-2">
-          <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <p className="text-sm">暫時沒有帖子</p>
+        <div className="flex flex-col items-center justify-center py-28 gap-5">
+          <div className="w-20 h-20 rounded-full bg-[#fff3f5] flex items-center justify-center">
+            <svg className="w-10 h-10 text-[#ff385c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div className="text-center space-y-1">
+            <p className="text-base font-semibold text-[#222222]">暫時沒有動態</p>
+            <p className="text-sm text-[#6a6a6a] font-normal">快啲去探索更多內容啦</p>
+          </div>
+          <Link
+            href="/"
+            className="mt-2 px-6 py-3 bg-[#222222] text-white text-sm font-semibold rounded-[8px] hover:bg-[#222222]/90 transition-colors"
+          >
+            開始探索
+          </Link>
         </div>
       ) : (
-        <div className="max-w-lg mx-auto py-4 space-y-4 px-0 sm:px-4">
+        <div className="max-w-[512px] mx-auto py-4 px-4 space-y-4">
           {items.map(item => (
-            <article key={item.id} className="bg-white sm:rounded-2xl overflow-hidden shadow-sm">
+            <article
+              key={item.id}
+              className="bg-white rounded-[20px] overflow-hidden"
+              style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}
+            >
               {/* Worker info row */}
               <div className="flex items-center gap-3 px-4 py-3">
-                <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-[#f7f7f7] flex-shrink-0">
                   {item.photo_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.photo_url} alt={item.worker_name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-5 h-5 text-[#c1c1c1]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
@@ -135,15 +154,15 @@ export default function FeedPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{item.worker_name}</p>
+                  <p className="text-base font-semibold text-[#222222] truncate">{item.worker_name}</p>
                   {item.nationality && (
-                    <p className="text-xs text-gray-400">{item.nationality}</p>
+                    <span className="text-xs bg-[#f2f2f2] px-2 py-0.5 rounded-full text-[#6a6a6a] font-normal">{item.nationality}</span>
                   )}
                 </div>
               </div>
 
               {/* Media */}
-              <div className="bg-black aspect-square">
+              <div className="bg-black aspect-[16/10]">
                 {item.type === 'video' ? (
                   <video
                     src={item.url}
@@ -156,33 +175,35 @@ export default function FeedPage() {
                   <img
                     src={item.url}
                     alt={item.caption ?? ''}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain rounded-[8px]"
                   />
                 )}
               </div>
 
               {/* Actions */}
-              <div className="px-4 pt-3 pb-1 flex items-center gap-4">
+              <div className="px-4 pt-3 pb-1 flex items-center">
                 {/* Like */}
-                <button
-                  onClick={() => handleLike(item)}
-                  className="flex items-center gap-1.5 group"
-                  aria-label={item.liked ? '取消讚好' : '讚好'}
-                >
-                  <svg
-                    className={`w-6 h-6 transition-colors ${item.liked ? 'text-red-500 fill-red-500' : 'text-gray-400 group-active:text-red-400'}`}
-                    viewBox="0 0 24 24"
-                    fill={item.liked ? 'currentColor' : 'none'}
-                    stroke="currentColor"
-                    strokeWidth={item.liked ? 0 : 1.8}
+                <div className="flex items-center">
+                  <button
+                    onClick={() => handleLike(item)}
+                    className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-all"
+                    aria-label={item.liked ? '取消讚好' : '讚好'}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                  <span className={`text-sm font-medium ${item.liked ? 'text-red-500' : 'text-gray-500'}`}>
+                    <svg
+                      className={`w-6 h-6 transition-colors ${item.liked ? 'text-[#ff385c] fill-[#ff385c]' : 'text-[#222222] group-active:text-[#ff385c]'}`}
+                      viewBox="0 0 24 24"
+                      fill={item.liked ? 'currentColor' : 'none'}
+                      stroke="currentColor"
+                      strokeWidth={item.liked ? 0 : 2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </button>
+                  <span className={`text-[14px] font-medium ml-1 ${item.liked ? 'text-[#ff385c]' : 'text-[#222222]'}`}>
                     {item.like_count}
                   </span>
-                </button>
+                </div>
 
                 {/* Spacer */}
                 <div className="flex-1" />
@@ -190,15 +211,15 @@ export default function FeedPage() {
                 {/* Bookmark */}
                 <button
                   onClick={() => handleBookmark(item)}
-                  className="group"
+                  className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-all"
                   aria-label={item.bookmarked ? '取消收藏' : '收藏'}
                 >
                   <svg
-                    className={`w-6 h-6 transition-colors ${item.bookmarked ? 'text-blue-600 fill-blue-600' : 'text-gray-400 group-active:text-blue-400'}`}
+                    className={`w-6 h-6 transition-colors ${item.bookmarked ? 'text-[#222222] fill-[#222222]' : 'text-[#222222] group-active:text-[#ff385c]'}`}
                     viewBox="0 0 24 24"
                     fill={item.bookmarked ? 'currentColor' : 'none'}
                     stroke="currentColor"
-                    strokeWidth={item.bookmarked ? 0 : 1.8}
+                    strokeWidth={item.bookmarked ? 0 : 2}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round"
                       d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -209,10 +230,8 @@ export default function FeedPage() {
               {/* Caption */}
               {item.caption && (
                 <div className="px-4 pb-3">
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    <span className="font-semibold text-gray-900 mr-1">{item.worker_name}</span>
-                    {item.caption}
-                  </p>
+                  <p className="text-[22px] font-semibold tracking-[-0.44px] text-[#222222] mb-1">{item.worker_name}</p>
+                  <p className="text-sm text-[#6a6a6a] font-normal leading-[1.43]">{item.caption}</p>
                 </div>
               )}
 

@@ -108,10 +108,10 @@ interface PendingFile {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  pending:    { label: '審核中',   color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  available:  { label: '可僱用',   color: 'bg-green-100  text-green-800  border-green-200' },
-  processing: { label: '面試中',   color: 'bg-orange-100 text-orange-800 border-orange-200' },
-  hired:      { label: '已受僱',   color: 'bg-blue-100   text-blue-800   border-blue-200' },
+  pending:    { label: '審核中',   color: 'bg-[#fff8e1] text-[#e67e22] border-[#ffe0b2]' },
+  available:  { label: '可僱用',   color: 'bg-[#f0fdf4] text-[#16a34a] border-[#bbf7d0]' },
+  processing: { label: '面試中',   color: 'bg-[#fff7ed] text-[#ea580c] border-[#fed7aa]' },
+  hired:      { label: '已受僱',   color: 'bg-[#f0f9ff] text-[#428bff] border-[#bfdbfe]' },
 };
 
 const SKILLS_LIST = [
@@ -134,11 +134,9 @@ const LANG_LABEL: Record<string, string> = { poor: '弱', fair: '一般', good: 
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden">
-      <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-100">
-        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{title}</h2>
-      </div>
-      <div className="px-4 py-3 divide-y divide-gray-50">{children}</div>
+    <div className="section-airbnb">
+      <h2 className="section-airbnb-title pb-3 mb-3 border-b border-[#f2f2f2]">{title}</h2>
+      <div className="divide-y divide-[#f2f2f2]">{children}</div>
     </div>
   );
 }
@@ -147,8 +145,8 @@ function Row({ label, value }: { label: string; value: string | number | null | 
   if (value === null || value === undefined || value === '') return null;
   return (
     <div className="flex justify-between py-2">
-      <span className="text-sm text-gray-500">{label}</span>
-      <span className="text-sm font-medium text-gray-900 text-right max-w-[58%]">{value}</span>
+      <span className="section-airbnb-content">{label}</span>
+      <span className="section-airbnb-content font-medium text-[#222222] text-right max-w-[58%]">{value}</span>
     </div>
   );
 }
@@ -157,8 +155,8 @@ function BoolRow({ label, value }: { label: string; value: boolean | null | unde
   if (value === null || value === undefined) return null;
   return (
     <div className="flex justify-between py-2">
-      <span className="text-sm text-gray-500">{label}</span>
-      <span className={`text-sm font-medium ${value ? 'text-gray-900' : 'text-gray-400'}`}>
+      <span className="section-airbnb-content">{label}</span>
+      <span className={`section-airbnb-content font-medium ${value ? 'text-[#222222]' : 'text-[#929292]'}`}>
         {value ? '是' : '否'}
       </span>
     </div>
@@ -297,8 +295,11 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-400">載入中...</p>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center space-y-3">
+          <span className="text-4xl">⏳</span>
+          <p className="text-sm text-[#6a6a6a]">載入中...</p>
+        </div>
       </div>
     );
   }
@@ -306,40 +307,36 @@ export default function ProfilePage() {
   // No profile yet
   if (!worker) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center space-y-4 max-w-sm w-full">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-            <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold text-gray-900">尚未登記資料</h1>
-          <p className="text-gray-500 text-sm">請填寫你的外傭資料以開始登記</p>
+          <span className="text-5xl">📋</span>
+          <h1 className="text-xl font-bold text-[#222222]">尚未登記資料</h1>
+          <p className="text-sm text-[#6a6a6a]">請填寫你的外傭資料以開始登記</p>
           <Link href="/worker/register"
-            className="inline-block w-full py-3.5 bg-blue-600 text-white rounded-xl font-semibold text-base text-center">
+            className="inline-block w-full h-12 bg-[#222222] hover:bg-black text-white rounded-[8px] font-semibold text-base text-center flex items-center justify-center">
             立即登記
           </Link>
-          <button onClick={handleSignOut} className="text-sm text-gray-400 underline mt-2">登出</button>
+          <button onClick={handleSignOut} className="text-sm text-[#6a6a6a] underline mt-2">登出</button>
         </div>
       </div>
     );
   }
 
-  const statusCfg = STATUS_CONFIG[worker.status] ?? { label: worker.status, color: 'bg-gray-100 text-gray-600 border-gray-200' };
+  const statusCfg = STATUS_CONFIG[worker.status] ?? { label: worker.status, color: 'bg-[#f7f7f7] text-[#3f3f3f] border-[#dddddd]' };
   const activeSkills = SKILLS_LIST.filter(s => worker[s.key as keyof Worker]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-10">
+    <div className="min-h-screen bg-white pb-10">
       {/* Caption Modal */}
       {showCaptionModal && (
         <div className="fixed inset-0 z-50 bg-black/70 flex flex-col">
           <div className="bg-white flex-1 overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
-              <button onClick={handleCaptionCancel} className="text-gray-500 font-medium text-sm">取消</button>
-              <h2 className="text-sm font-semibold text-gray-900">新增貼文</h2>
+            <div className="sticky top-0 bg-white border-b border-[#dddddd] px-4 py-3 flex items-center justify-between">
+              <button onClick={handleCaptionCancel} className="text-[#6a6a6a] font-medium text-sm">取消</button>
+              <h2 className="text-sm font-semibold text-[#222222]">新增貼文</h2>
               <button
                 onClick={handleCaptionConfirm}
-                className="text-blue-600 font-semibold text-sm"
+                className="text-[#ff385c] font-semibold text-sm"
               >
                 上傳
               </button>
@@ -349,9 +346,9 @@ export default function ProfilePage() {
               {pendingFiles.map((pf, i) => (
                 <div key={i} className="space-y-3">
                   {pendingFiles.length > 1 && (
-                    <p className="text-xs text-gray-400 font-medium">第 {i + 1} 張</p>
+                    <p className="text-xs text-[#929292] font-medium">第 {i + 1} 張</p>
                   )}
-                  <div className="rounded-xl overflow-hidden bg-gray-100 aspect-square">
+                  <div className="rounded-[8px] overflow-hidden bg-[#f7f7f7] aspect-square">
                     {pf.file.type.startsWith('video/') ? (
                       <video src={pf.previewUrl} className="w-full h-full object-cover" controls />
                     ) : (
@@ -365,9 +362,9 @@ export default function ProfilePage() {
                       onChange={e => handleCaptionChange(i, e.target.value)}
                       placeholder="加入說明（最多100字）..."
                       rows={3}
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 resize-none focus:outline-none focus:border-blue-400"
+                      className="w-full px-3 py-2.5 border border-[#dddddd] rounded-[8px] text-sm text-[#222222] placeholder:text-[#929292] resize-none focus:outline-none focus:border-[#222222]"
                     />
-                    <p className="text-right text-xs text-gray-400 mt-1">{pf.caption.length}/100</p>
+                    <p className="text-right text-xs text-[#929292] mt-1">{pf.caption.length}/100</p>
                   </div>
                 </div>
               ))}
@@ -377,26 +374,26 @@ export default function ProfilePage() {
       )}
 
       {/* Header */}
-      <div className="bg-white px-4 pt-12 pb-6 shadow-sm">
+      <div className="bg-white px-4 pt-12 pb-6 border-b border-[#f2f2f2]">
         <div className="flex items-start justify-between mb-5">
           <div className="space-y-1">
-            <span className={`inline-flex items-center px-3 py-1 rounded-full border text-xs font-bold ${statusCfg.color}`}>
+            <span className={`pill-badge border ${statusCfg.color}`}>
               {statusCfg.label}
             </span>
-            {worker.code && <p className="text-xs text-gray-400 pl-1">No. {worker.code}</p>}
+            {worker.code && <p className="text-xs text-[#929292] pl-1">No. {worker.code}</p>}
           </div>
-          <button onClick={handleSignOut} className="text-sm text-gray-400 font-medium">登出</button>
+          <button onClick={handleSignOut} className="text-sm text-[#929292] font-medium">登出</button>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="relative flex-shrink-0" onClick={() => photoInputRef.current?.click()}>
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 cursor-pointer">
+            <div className="w-20 h-20 rounded-full border-2 border-[#f2f2f2] overflow-hidden bg-[#dddddd] cursor-pointer">
               {worker.photo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={worker.photo_url} alt={worker.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <svg className="w-9 h-9 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-9 h-9 text-[#929292]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
@@ -407,7 +404,7 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
-            <div className="absolute bottom-0 right-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+            <div className="absolute bottom-0 right-0 w-6 h-6 bg-[#ff385c] rounded-full flex items-center justify-center">
               <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
               </svg>
@@ -415,9 +412,9 @@ export default function ProfilePage() {
           </div>
           <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{worker.name}</h1>
-            <p className="text-sm text-gray-500">{worker.nationality}</p>
-            <p className="text-xs text-gray-400 mt-0.5">點擊頭像更換照片</p>
+            <h1 className="text-[22px] font-semibold text-[#222222] tracking-[-0.44px]">{worker.name}</h1>
+            <p className="text-sm text-[#6a6a6a]">{worker.nationality}</p>
+            <p className="text-xs text-[#929292] mt-0.5">點擊頭像更換照片</p>
           </div>
         </div>
       </div>
@@ -425,14 +422,14 @@ export default function ProfilePage() {
       {/* Action buttons */}
       <div className="px-4 mt-4 flex gap-3">
         <Link href="/worker/edit"
-          className="flex-1 flex items-center justify-center py-3 border-2 border-blue-600 rounded-xl text-blue-600 font-semibold gap-2">
+          className="flex-1 flex items-center justify-center h-12 bg-[#222222] hover:bg-black text-white rounded-[8px] font-semibold gap-2 transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
           修改資料
         </Link>
         <Link href="/feed"
-          className="flex-1 flex items-center justify-center py-3 border-2 border-gray-200 rounded-xl text-gray-600 font-semibold gap-2">
+          className="flex-1 flex items-center justify-center h-12 bg-[#222222] hover:bg-black text-white rounded-[8px] font-semibold gap-2 transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
@@ -470,7 +467,7 @@ export default function ProfilePage() {
           <Section title="技能">
             <div className="flex flex-wrap gap-2 py-2">
               {activeSkills.map(s => (
-                <span key={s.key} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-200">
+                <span key={s.key} className="pill-badge bg-[#f7f7f7] text-[#222222] border border-[#dddddd]">
                   {s.label}
                 </span>
               ))}
@@ -492,8 +489,8 @@ export default function ProfilePage() {
           <Section title="海外工作記錄">
             {overseas.map(exp => (
               <div key={exp.id} className="flex justify-between py-2">
-                <span className="text-sm font-medium text-gray-800">{exp.country}</span>
-                <span className="text-sm text-gray-500">{exp.duration}</span>
+                <span className="text-sm font-medium text-[#222222]">{exp.country}</span>
+                <span className="section-airbnb-content">{exp.duration}</span>
               </div>
             ))}
           </Section>
@@ -506,21 +503,21 @@ export default function ProfilePage() {
               {duties.map(d => {
                 const dutySkills = SKILLS_LIST.filter(s => d[s.key as keyof Duty]);
                 return (
-                  <div key={d.id} className="border border-gray-100 rounded-xl p-3 space-y-1.5">
+                  <div key={d.id} className="border border-[#f2f2f2] rounded-[8px] p-3 space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm text-gray-800">第 {d.job_order} 份工作</span>
-                      <span className="text-xs text-gray-400">{d.working_country}</span>
+                      <span className="font-semibold text-sm text-[#222222]">第 {d.job_order} 份工作</span>
+                      <span className="text-xs text-[#6a6a6a]">{d.working_country}</span>
                     </div>
                     {(d.duration_from || d.duration_to) && (
-                      <p className="text-xs text-gray-500">{d.duration_from} — {d.duration_to}</p>
+                      <p className="text-xs text-[#6a6a6a]">{d.duration_from} — {d.duration_to}</p>
                     )}
-                    {d.salary              && <p className="text-xs text-gray-600">薪金: {d.salary}</p>}
-                    {d.employer_family_info && <p className="text-xs text-gray-600">僱主: {d.employer_family_info}</p>}
-                    {d.reason_to_leave     && <p className="text-xs text-gray-600">離職: {d.reason_to_leave}</p>}
+                    {d.salary              && <p className="text-xs text-[#222222]">薪金: {d.salary}</p>}
+                    {d.employer_family_info && <p className="text-xs text-[#222222]">僱主: {d.employer_family_info}</p>}
+                    {d.reason_to_leave     && <p className="text-xs text-[#222222]">離職: {d.reason_to_leave}</p>}
                     {dutySkills.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {dutySkills.map(s => (
-                          <span key={s.key} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">{s.label}</span>
+                          <span key={s.key} className="pill-badge bg-[#f7f7f7] text-[#222222] border border-[#dddddd] text-xs">{s.label}</span>
                         ))}
                       </div>
                     )}
@@ -549,21 +546,21 @@ export default function ProfilePage() {
         {/* 備注 */}
         {worker.remark && (
           <Section title="備注">
-            <p className="text-sm text-gray-700 leading-relaxed py-2">{worker.remark}</p>
+            <p className="section-airbnb-content text-[#222222] leading-relaxed py-2">{worker.remark}</p>
           </Section>
         )}
 
         {/* 相片及影片 */}
-        <div className="bg-white rounded-2xl overflow-hidden">
-          <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">相片及影片</h2>
+        <div className="section-airbnb">
+          <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#f2f2f2]">
+            <h2 className="section-airbnb-title mb-0 pb-0 border-0">相片及影片</h2>
             <button
               onClick={() => mediaInputRef.current?.click()}
               disabled={mediaUploading}
-              className="flex items-center gap-1 text-xs text-blue-600 font-semibold disabled:opacity-50"
+              className="flex items-center gap-1 text-xs text-[#ff385c] font-semibold disabled:opacity-50"
             >
               {mediaUploading ? (
-                <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-3.5 h-3.5 border-2 border-[#ff385c] border-t-transparent rounded-full animate-spin" />
               ) : (
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -584,27 +581,24 @@ export default function ProfilePage() {
             {media.length === 0 && !mediaUploading ? (
               <button
                 onClick={() => mediaInputRef.current?.click()}
-                className="w-full py-8 flex flex-col items-center gap-2 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl"
+                className="w-full py-8 flex flex-col items-center gap-2 text-[#929292] border-2 border-dashed border-[#dddddd] rounded-[8px]"
               >
-                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-sm">點擊上傳相片或影片</span>
+                <span className="text-3xl">📷</span>
+                <span className="text-sm text-[#6a6a6a]">點擊上傳相片或影片</span>
               </button>
             ) : (
               <div className="grid grid-cols-3 gap-2">
                 {media.map(item => (
-                  <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
+                  <div key={item.id} className="relative aspect-square rounded-[8px] overflow-hidden bg-[#f7f7f7] group">
                     {item.type === 'image' ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                      <div className="w-full h-full flex items-center justify-center bg-[#222222]">
                         <video src={item.url} className="w-full h-full object-cover" preload="metadata" />
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="w-10 h-10 bg-white/80 rounded-full flex items-center justify-center">
-                            <svg className="w-5 h-5 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-[#3f3f3f] ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M8 5v14l11-7z" />
                             </svg>
                           </div>

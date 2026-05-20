@@ -3,17 +3,267 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* Airbnb Design System Colors */
+  --rausch: #ff385c;
+  --rausch-deep: #e00b41;
+  --canvas-white: #ffffff;
+  --soft-cloud: #f7f7f7;
+  --ink-black: #222222;
+  --charcoal: #3f3f3f;
+  --ash-gray: #6a6a6a;
+  --mute-gray: #929292;
+  --stone-gray: #c1c1c1;
+  --hairline-gray: #dddddd;
+  --error-red: #c13515;
+  --info-blue: #428bff;
+
+  /* Shadows */
+  --shadow-elevated: rgba(0, 0, 0, 0.02) 0 0 0 1px, rgba(0, 0, 0, 0.04) 0 2px 6px 0, rgba(0, 0, 0, 0.1) 0 4px 8px 0;
+  --shadow-button: rgba(0, 0, 0, 0.08) 0 4px 12px;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--ink-black);
+  background: var(--canvas-white);
+  font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  line-height: 1.43;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Airbnb-style primary button — dark bg */
+.btn-primary {
+  background: var(--ink-black);
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.25;
+  padding: 0 24px;
+  height: 48px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-primary:hover {
+  background: #000000;
+}
+.btn-primary:disabled {
+  background: #f2f2f2;
+  color: var(--stone-gray);
+  cursor: not-allowed;
+}
+
+/* Airbnb-style secondary button */
+.btn-secondary {
+  background: white;
+  color: var(--ink-black);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--hairline-gray);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.btn-secondary:hover {
+  border-color: var(--ink-black);
+}
+
+/* Airbnb-style input */
+.input-airbnb {
+  background: white;
+  border: 1.5px solid var(--hairline-gray);
+  border-radius: 8px;
+  height: 56px;
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  color: var(--ink-black);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+.input-airbnb::placeholder {
+  color: var(--ash-gray);
+}
+.input-airbnb:focus {
+  border-color: var(--ink-black);
+  box-shadow: 0 0 0 2px var(--ink-black);
+}
+.input-airbnb.error {
+  border-color: var(--error-red);
+}
+
+/* Airbnb-style card */
+.card-airbnb {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.card-airbnb-elevated {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid var(--hairline-gray);
+  box-shadow: var(--shadow-elevated);
+  padding: 24px;
+}
+
+/* Social icon button */
+.btn-social {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--hairline-gray);
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+.btn-social:hover {
+  border-color: var(--ink-black);
+  box-shadow: var(--shadow-elevated);
+}
+.btn-social:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Link style */
+a {
+  color: var(--ink-black);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a:hover {
+  color: var(--rausch);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--stone-gray);
+  border-radius: 3px;
+}
+
+/* Section card for profile pages */
+.section-airbnb {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #f2f2f2;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.section-airbnb-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222222;
+  margin-bottom: 12px;
+}
+
+.section-airbnb-content {
+  font-size: 14px;
+  font-weight: 400;
+  color: #6a6a6a;
+  line-height: 1.43;
+}
+
+/* Pill badge */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Icon button */
+.icon-btn-airbnb {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.icon-btn-airbnb:hover {
+  background: white;
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Tab bar — fixed bottom navigation */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 56px;
+  background: white;
+  border-top: 1px solid #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1000;
+}
+
+/* Tab item */
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #6a6a6a;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tab-item.active {
+  color: #222222;
+}
+
+/* Feed card */
+.feed-card-airbnb {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow-elevated);
+  overflow: hidden;
+}
+
+/* Page title */
+.page-title-airbnb {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222222;
+  letter-spacing: -0.44px;
+}
+
+/* Heading */
+.heading-airbnb {
+  font-size: 22px;
+  font-weight: 600;
+  color: #222222;
+  letter-spacing: -0.44px;
 }
