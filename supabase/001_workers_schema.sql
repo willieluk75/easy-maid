@@ -203,7 +203,248 @@ CREATE POLICY "Worker can manage own previous duties"
 
 
 -- ============================================================
--- 5. Storage bucket for photos & documents
+-- 5. worker_media (外傭相片/影片)
+-- ============================================================
+CREATE TABLE worker_media (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  worker_id     uuid NOT NULL REFERENCES workers(id) ON DELETE CASCADE,
+  url           text NOT NULL,
+  storage_path  text,
+  type          text NOT NULL DEFAULT 'image' CHECK (type IN ('image', 'video')),
+  caption       text,
+  created_at    timestamptz DEFAULT now()
+);
+
+ALTER TABLE worker_media ENABLE ROW LEVEL SECURITY;
+
+-- 公開可讀 visible worker 的媒體
+CREATE POLICY "Public can view media of visible workers"
+  ON worker_media FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM workers w
+      WHERE w.id = worker_id
+        AND (w.status IN ('available','hired','processing') OR w.user_id = auth.uid())
+    )
+  );
+
+-- 本人可管理自己的媒體
+CREATE POLICY "Worker can manage own media"
+  ON worker_media FOR ALL
+  USING (
+    EXISTS (SELECT 1 FROM workers w WHERE w.id = worker_id AND w.user_id = auth.uid())
+  );
+
+
+-- ============================================================
+-- 6. media_likes (媒體按讚)
+-- ============================================================
+CREATE TABLE media_likes (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  media_id   uuid NOT NULL REFERENCES worker_media(id) ON DELETE CASCADE,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(user_id, media_id)
+);
+
+ALTER TABLE media_likes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public can view likes"
+  ON media_likes FOR SELECT USING (true);
+
+CREATE POLICY "Authenticated user can like"
+  ON media_likes FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "User can unlike own likes"
+  ON media_likes FOR DELETE
+  USING (auth.uid() = user_id);
+
+
+-- ============================================================
+-- 7. media_bookmarks (媒體收藏)
+-- ============================================================
+CREATE TABLE media_bookmarks (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  media_id   uuid NOT NULL REFERENCES worker_media(id) ON DELETE CASCADE,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(user_id, media_id)
+);
+
+ALTER TABLE media_bookmarks ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Owner can view own bookmarks"
+  ON media_bookmarks FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Authenticated user can bookmark"
+  ON media_bookmarks FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "User can remove own bookmarks"
+  ON media_bookmarks FOR DELETE
+  USING (auth.uid() = user_id);
+
+
+-- ============================================================
+-- 8. user_roles (角色系統)
+-- ============================================================
+CREATE TABLE user_roles (
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role    text NOT NULL DEFAULT 'worker'
+          CHECK (role IN ('worker','employer','admin'))
+);
+
+ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "User can view own role"
+  ON user_roles FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- 僅 service_role 可 INSERT/UPDATE（透過 trigger 或 admin 操作）
+CREATE POLICY "Service role can manage roles"
+  ON user_roles FOR ALL
+  USING (auth.role() = 'service_role');
+
+
+-- ============================================================
+-- 9. employers (僱主資料)
+-- ============================================================
+CREATE TABLE employers (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id      uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  company_name text,
+  contact_name text NOT NULL,
+  phone        text,
+  district     text,   -- HK Island / Kowloon / NT
+  created_at   timestamptz DEFAULT now()
+);
+
+ALTER TABLE employers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Employer can view own record"
+  ON employers FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Employer can update own record"
+  ON employers FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Authenticated user can insert own employer record"
+  ON employers FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+
+-- ============================================================
+-- 10. inquiries (僱主詢問外傭)
+-- ============================================================
+CREATE TABLE inquiries (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  employer_id uuid NOT NULL REFERENCES employers(id) ON DELETE CASCADE,
+  worker_id   uuid NOT NULL REFERENCES workers(id)   ON DELETE CASCADE,
+  message     text,
+  status      text DEFAULT 'pending'
+              CHECK (status IN ('pending','replied','closed')),
+  created_at  timestamptz DEFAULT now()
+);
+
+ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
+
+-- 僱主可讀自己發出的詢問
+CREATE POLICY "Employer can view own inquiries"
+  ON inquiries FOR SELECT
+  USING (
+    EXISTS (SELECT 1 FROM employers e WHERE e.id = employer_id AND e.user_id = auth.uid())
+  );
+
+-- 外傭可讀收到的詢問
+CREATE POLICY "Worker can view received inquiries"
+  ON inquiries FOR SELECT
+  USING (
+    EXISTS (SELECT 1 FROM workers w WHERE w.id = worker_id AND w.user_id = auth.uid())
+  );
+
+-- 僱主可發送詢問
+CREATE POLICY "Employer can create inquiry"
+  ON inquiries FOR INSERT
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM employers e WHERE e.id = employer_id AND e.user_id = auth.uid())
+  );
+
+
+-- ============================================================
+-- 11. worker_bookmarks (僱主收藏外傭)
+-- ============================================================
+CREATE TABLE worker_bookmarks (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    uuid NOT NULL REFERENCES auth.users(id)  ON DELETE CASCADE,
+  worker_id  uuid NOT NULL REFERENCES workers(id)     ON DELETE CASCADE,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(user_id, worker_id)
+);
+
+ALTER TABLE worker_bookmarks ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Owner can view own worker bookmarks"
+  ON worker_bookmarks FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Authenticated user can bookmark worker"
+  ON worker_bookmarks FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "User can remove own worker bookmarks"
+  ON worker_bookmarks FOR DELETE
+  USING (auth.uid() = user_id);
+
+
+-- ============================================================
+-- 12. get_feed RPC (Feed 動態查詢)
+-- ============================================================
+CREATE OR REPLACE FUNCTION get_feed(p_user_id uuid DEFAULT null)
+RETURNS TABLE (
+  id           uuid,
+  worker_id    uuid,
+  url          text,
+  storage_path text,
+  type         text,
+  caption      text,
+  created_at   timestamptz,
+  worker_name  text,
+  nationality  text,
+  photo_url    text,
+  like_count   bigint,
+  liked        boolean,
+  bookmarked   boolean
+) AS $$
+SELECT
+  m.id,
+  m.worker_id,
+  m.url,
+  m.storage_path,
+  m.type,
+  m.caption,
+  m.created_at,
+  w.name        AS worker_name,
+  w.nationality,
+  w.photo_url,
+  (SELECT COUNT(*) FROM media_likes ml WHERE ml.media_id = m.id) AS like_count,
+  (p_user_id IS NOT NULL AND EXISTS (
+    SELECT 1 FROM media_likes ml WHERE ml.media_id = m.id AND ml.user_id = p_user_id
+  )) AS liked,
+  (p_user_id IS NOT NULL AND EXISTS (
+    SELECT 1 FROM media_bookmarks mb WHERE mb.media_id = m.id AND mb.user_id = p_user_id
+  )) AS bookmarked
+FROM worker_media m
+JOIN workers w ON w.id = m.worker_id
+WHERE w.status IN ('available', 'hired', 'processing')
+ORDER BY m.created_at DESC;
+$$ LANGUAGE sql STABLE;
+
+
+-- ============================================================
+-- 13. Storage bucket for photos & documents
 -- ============================================================
 -- Run in Supabase Dashboard → Storage → New Bucket:
 --   Bucket name: worker-assets

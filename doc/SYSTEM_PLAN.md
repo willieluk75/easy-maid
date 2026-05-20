@@ -148,17 +148,17 @@ CREATE TABLE worker_bookmarks (
 
 ---
 
-### ⬜ Phase 1 — 外傭公開瀏覽（P0）
+### ✅ Phase 1 — 外傭公開瀏覽（P0）
 
-| ID | 任務 | 分類 | Deps | 驗收 |
-|----|------|------|------|------|
-| T10 | Workers 列表頁 `/workers` | FE | — | 顯示 available/processing 外傭；每格：頭像、姓名、國籍、技能 chips |
-| T11 | Workers 列表：基本篩選（國籍 dropdown）| FE | T10 | 選國籍後列表即時更新 |
-| T12 | Workers 列表：技能篩選（multi-select chips）| FE | T10 | 選技能後 AND-filter |
-| T13 | Worker 詳細頁 `/workers/[id]` | FE | T10 | 完整 profile 資料（同 /profile 但公開，無編輯按鈕）|
-| T14 | Worker 詳細頁：媒體 gallery section | FE | T13 | 顯示該外傭所有媒體，3欄 grid，點擊放大 |
-| T15 | 底部 Tab 導航（persistent）| FE | T10 | Feed / 外傭列表 / 書籤 / 我；高亮當前頁 |
-| T16 | `/feed` Card 點擊跳 `/workers/[id]` | FE | T13 | 點工人頭像/姓名跳詳細頁 |
+| ID | 任務 | 狀態 |
+|----|------|------|
+| T10 | Workers 列表頁 `/workers` | ✅ |
+| T11 | 列表頁：國籍篩選 dropdown | ✅ |
+| T12 | 列表頁：技能篩選 multi-select chips | ✅ |
+| T13 | Worker 詳細頁 `/workers/[id]` | ✅ |
+| T14 | 詳細頁：媒體 gallery + lightbox | ✅ |
+| T15 | 底部 Tab 導航（Feed/外傭/收藏/我）| ✅ |
+| T16 | `/feed` Card 點擊跳 `/workers/[id]` | ✅ |
 
 ---
 

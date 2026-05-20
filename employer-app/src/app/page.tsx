@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
-        router.replace('/workers');
+        router.replace('/feed');
       } else {
         router.replace('/signin');
       }
@@ -18,8 +18,8 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <p className="text-gray-400 text-sm">載入中...</p>
+    <div className="min-h-screen flex items-center justify-center bg-[#f7f7f7]">
+      <p className="text-[#929292] text-sm">載入中...</p>
     </div>
   );
 }
