@@ -1,8 +1,16 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+
+const DEMO_FEED: FeedItem[] = [
+  { id: 'demo-1', worker_id: 'demo-w1', url: '/images/feed/feed-1.jpg', type: 'image', caption: '今日幫僱主打掃完廚房，灶台光亮如新 ✨', created_at: '2026-05-19T10:00:00Z', worker_name: 'Priya Sharma', nationality: '印度', photo_url: '/images/workers/worker-1.jpg', like_count: 24, liked: false, bookmarked: false },
+  { id: 'demo-2', worker_id: 'demo-w2', url: '/images/feed/feed-2.jpg', type: 'image', caption: '為小朋友準備嘅健康午餐 🍱', created_at: '2026-05-18T12:30:00Z', worker_name: 'Siti Rahayu', nationality: '印尼', photo_url: '/images/workers/worker-2.jpg', like_count: 38, liked: false, bookmarked: false },
+  { id: 'demo-3', worker_id: 'demo-w3', url: '/images/feed/feed-3.jpg', type: 'image', caption: '摺衫技巧分享！整齊又省位 👕', created_at: '2026-05-17T09:15:00Z', worker_name: 'Maria Santos', nationality: '菲律賓', photo_url: '/images/workers/worker-3.jpg', like_count: 15, liked: false, bookmarked: false },
+  { id: 'demo-4', worker_id: 'demo-w4', url: '/images/feed/feed-4.jpg', type: 'image', caption: '同 BB 玩得好開心 😊', created_at: '2026-05-16T15:45:00Z', worker_name: 'Nandar Win', nationality: '緬甸', photo_url: '/images/workers/worker-4.jpg', like_count: 52, liked: false, bookmarked: false },
+  { id: 'demo-5', worker_id: 'demo-w5', url: '/images/feed/feed-5.jpg', type: 'image', caption: '客廳打掃完畢，一塵不染 🏠', created_at: '2026-05-15T08:00:00Z', worker_name: 'Anita Gurung', nationality: '尼泊爾', photo_url: '/images/workers/worker-6.jpg', like_count: 19, liked: false, bookmarked: false },
+];
 
 interface FeedItem {
   id: string;
@@ -29,8 +37,10 @@ export default function FeedPage() {
     const { data, error } = await supabase.rpc('get_feed', {
       p_user_id: uid ?? null,
     });
-    if (!error && data) {
+    if (!error && data && data.length > 0) {
       setItems(data as FeedItem[]);
+    } else {
+      setItems(DEMO_FEED);
     }
     setLoading(false);
   }, []);
@@ -43,8 +53,11 @@ export default function FeedPage() {
     });
   }, [loadFeed]);
 
+  const isDemoModeRef = useRef(false);
+  isDemoModeRef.current = items.length > 0 && items[0].id.startsWith('demo-');
+
   const handleLike = async (item: FeedItem) => {
-    if (!userId) { router.push('/signin'); return; }
+    if (!userId && !isDemoModeRef.current) { router.push('/signin'); return; }
 
     setItems(prev => prev.map(it =>
       it.id !== item.id ? it : {
@@ -54,32 +67,36 @@ export default function FeedPage() {
       }
     ));
 
-    if (item.liked) {
-      await supabase.from('media_likes')
-        .delete()
-        .eq('media_id', item.id)
-        .eq('user_id', userId);
-    } else {
-      await supabase.from('media_likes')
-        .insert({ media_id: item.id, user_id: userId });
+    if (!isDemoModeRef.current) {
+      if (item.liked) {
+        await supabase.from('media_likes')
+          .delete()
+          .eq('media_id', item.id)
+          .eq('user_id', userId);
+      } else {
+        await supabase.from('media_likes')
+          .insert({ media_id: item.id, user_id: userId });
+      }
     }
   };
 
   const handleBookmark = async (item: FeedItem) => {
-    if (!userId) { router.push('/signin'); return; }
+    if (!userId && !isDemoModeRef.current) { router.push('/signin'); return; }
 
     setItems(prev => prev.map(it =>
       it.id !== item.id ? it : { ...it, bookmarked: !it.bookmarked }
     ));
 
-    if (item.bookmarked) {
-      await supabase.from('media_bookmarks')
-        .delete()
-        .eq('media_id', item.id)
-        .eq('user_id', userId);
-    } else {
-      await supabase.from('media_bookmarks')
-        .insert({ media_id: item.id, user_id: userId });
+    if (!isDemoModeRef.current) {
+      if (item.bookmarked) {
+        await supabase.from('media_bookmarks')
+          .delete()
+          .eq('media_id', item.id)
+          .eq('user_id', userId);
+      } else {
+        await supabase.from('media_bookmarks')
+          .insert({ media_id: item.id, user_id: userId });
+      }
     }
   };
 

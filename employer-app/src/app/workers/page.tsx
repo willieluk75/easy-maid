@@ -42,6 +42,75 @@ const SKILL_OPTIONS: { key: keyof Worker; zh: string }[] = [
   { key: 'skill_pickup_taobao',  zh: '代購淘寶' },
 ];
 
+const DEMO_WORKERS: Worker[] = [
+  {
+    id: 'demo-1',
+    name: 'Priya Sharma',
+    nationality: '印度',
+    photo_url: '/images/workers/worker-1.jpg',
+    status: 'available',
+    skill_care_babies: false, skill_care_toddler: false, skill_care_children: false,
+    skill_care_elderly: true, skill_care_disabled: false, skill_care_bedridden: false,
+    skill_care_pet: false, skill_household: true, skill_car_washing: false,
+    skill_gardening: false, skill_cooking: true, skill_driving: false, skill_pickup_taobao: false,
+  },
+  {
+    id: 'demo-2',
+    name: 'Siti Rahayu',
+    nationality: '印尼',
+    photo_url: '/images/workers/worker-2.jpg',
+    status: 'available',
+    skill_care_babies: true, skill_care_toddler: false, skill_care_children: false,
+    skill_care_elderly: false, skill_care_disabled: false, skill_care_bedridden: false,
+    skill_care_pet: false, skill_household: true, skill_car_washing: false,
+    skill_gardening: false, skill_cooking: true, skill_driving: false, skill_pickup_taobao: false,
+  },
+  {
+    id: 'demo-3',
+    name: 'Maria Santos',
+    nationality: '菲律賓',
+    photo_url: '/images/workers/worker-3.jpg',
+    status: 'processing',
+    skill_care_babies: false, skill_care_toddler: false, skill_care_children: false,
+    skill_care_elderly: false, skill_care_disabled: false, skill_care_bedridden: false,
+    skill_care_pet: true, skill_household: true, skill_car_washing: false,
+    skill_gardening: false, skill_cooking: true, skill_driving: false, skill_pickup_taobao: false,
+  },
+  {
+    id: 'demo-4',
+    name: 'Nandar Win',
+    nationality: '緬甸',
+    photo_url: '/images/workers/worker-4.jpg',
+    status: 'available',
+    skill_care_babies: false, skill_care_toddler: false, skill_care_children: false,
+    skill_care_elderly: false, skill_care_disabled: false, skill_care_bedridden: false,
+    skill_care_pet: false, skill_household: true, skill_car_washing: false,
+    skill_gardening: true, skill_cooking: true, skill_driving: false, skill_pickup_taobao: false,
+  },
+  {
+    id: 'demo-5',
+    name: 'Linh Nguyen',
+    nationality: '越南',
+    photo_url: '/images/workers/worker-5.jpg',
+    status: 'available',
+    skill_care_babies: false, skill_care_toddler: false, skill_care_children: true,
+    skill_care_elderly: false, skill_care_disabled: false, skill_care_bedridden: false,
+    skill_care_pet: false, skill_household: true, skill_car_washing: false,
+    skill_gardening: false, skill_cooking: true, skill_driving: false, skill_pickup_taobao: false,
+  },
+  {
+    id: 'demo-6',
+    name: 'Anita Gurung',
+    nationality: '尼泊爾',
+    photo_url: '/images/workers/worker-6.jpg',
+    status: 'available',
+    skill_care_babies: false, skill_care_toddler: false, skill_care_children: false,
+    skill_care_elderly: true, skill_care_disabled: false, skill_care_bedridden: false,
+    skill_care_pet: false, skill_household: true, skill_car_washing: false,
+    skill_gardening: false, skill_cooking: true, skill_driving: false, skill_pickup_taobao: false,
+  },
+];
+
 function workerSkills(w: Worker): string[] {
   return SKILL_OPTIONS.filter(s => w[s.key] === true).map(s => s.zh);
 }
@@ -79,28 +148,39 @@ export default function WorkersPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      setUserId(data.user?.id ?? null);
-    });
+      const uid = data.user?.id ?? null;
+      setUserId(uid);
 
-    supabase
-      .from('workers')
-      .select(`
-        id, name, nationality, photo_url, status,
-        skill_care_babies, skill_care_toddler, skill_care_children,
-        skill_care_elderly, skill_care_disabled, skill_care_bedridden,
-        skill_care_pet, skill_household, skill_car_washing,
-        skill_gardening, skill_cooking, skill_driving, skill_pickup_taobao
-      `)
-      .in('status', ['available', 'processing'])
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data) {
-          setAllWorkers(data as Worker[]);
-          const nations = [...new Set(data.map((w: Worker) => w.nationality).filter(Boolean))] as string[];
-          setNationalities(nations);
-        }
+      if (!uid) {
+        setAllWorkers(DEMO_WORKERS);
+        setNationalities([...new Set(DEMO_WORKERS.map(w => w.nationality).filter((n): n is string => !!n))]);
         setLoading(false);
-      });
+        return;
+      }
+
+      supabase
+        .from('workers')
+        .select(`
+          id, name, nationality, photo_url, status,
+          skill_care_babies, skill_care_toddler, skill_care_children,
+          skill_care_elderly, skill_care_disabled, skill_care_bedridden,
+          skill_care_pet, skill_household, skill_car_washing,
+          skill_gardening, skill_cooking, skill_driving, skill_pickup_taobao
+        `)
+        .in('status', ['available', 'processing'])
+        .order('created_at', { ascending: false })
+        .then(({ data, error }) => {
+          if (!error && data && data.length > 0) {
+            setAllWorkers(data as Worker[]);
+            const nations = [...new Set(data.map((w: Worker) => w.nationality).filter(Boolean))] as string[];
+            setNationalities(nations);
+          } else {
+            setAllWorkers(DEMO_WORKERS);
+            setNationalities([...new Set(DEMO_WORKERS.map(w => w.nationality).filter((n): n is string => !!n))]);
+          }
+          setLoading(false);
+        });
+    });
   }, []);
 
   const filtered = allWorkers.filter(w => {

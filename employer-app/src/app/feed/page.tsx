@@ -41,6 +41,39 @@ const TABS = [
   )},
 ];
 
+const DEMO_FEED: FeedItem[] = [
+  {
+    id: 'demo-1', worker_id: 'demo-w1', url: '/images/feed/feed-1.jpg', storage_path: null, type: 'image',
+    caption: '今日幫僱主打掃完廚房，灶台光亮如新 ✨', created_at: '2026-05-19T10:00:00Z',
+    worker_name: 'Priya Sharma', nationality: '印度', photo_url: '/images/workers/worker-1.jpg',
+    like_count: 24, liked: false, bookmarked: false,
+  },
+  {
+    id: 'demo-2', worker_id: 'demo-w2', url: '/images/feed/feed-2.jpg', storage_path: null, type: 'image',
+    caption: '為小朋友準備嘅健康午餐 🍱', created_at: '2026-05-18T12:30:00Z',
+    worker_name: 'Siti Rahayu', nationality: '印尼', photo_url: '/images/workers/worker-2.jpg',
+    like_count: 38, liked: false, bookmarked: false,
+  },
+  {
+    id: 'demo-3', worker_id: 'demo-w3', url: '/images/feed/feed-3.jpg', storage_path: null, type: 'image',
+    caption: '摺衫技巧分享！整齊又省位 👕', created_at: '2026-05-17T09:15:00Z',
+    worker_name: 'Maria Santos', nationality: '菲律賓', photo_url: '/images/workers/worker-3.jpg',
+    like_count: 15, liked: false, bookmarked: false,
+  },
+  {
+    id: 'demo-4', worker_id: 'demo-w4', url: '/images/feed/feed-4.jpg', storage_path: null, type: 'image',
+    caption: '同 BB 玩得好開心 😊', created_at: '2026-05-16T15:45:00Z',
+    worker_name: 'Nandar Win', nationality: '緬甸', photo_url: '/images/workers/worker-4.jpg',
+    like_count: 52, liked: false, bookmarked: false,
+  },
+  {
+    id: 'demo-5', worker_id: 'demo-w5', url: '/images/feed/feed-5.jpg', storage_path: null, type: 'image',
+    caption: '客廳打掃完畢，一塵不染 🏠', created_at: '2026-05-15T11:00:00Z',
+    worker_name: 'Anita Gurung', nationality: '尼泊爾', photo_url: '/images/workers/worker-6.jpg',
+    like_count: 19, liked: false, bookmarked: false,
+  },
+];
+
 export default function FeedPage() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,8 +84,10 @@ export default function FeedPage() {
     const { data, error } = await supabase.rpc('get_feed', {
       p_user_id: uid,
     });
-    if (!error && data) {
+    if (!error && data && data.length > 0) {
       setItems(data as FeedItem[]);
+    } else {
+      setItems([...DEMO_FEED]);
     }
     setLoading(false);
   };
@@ -66,8 +101,6 @@ export default function FeedPage() {
   }, []);
 
   const toggleLike = async (item: FeedItem, index: number) => {
-    if (!userId) return;
-
     const newLiked = !item.liked;
     setItems(prev => {
       const next = [...prev];
@@ -79,6 +112,7 @@ export default function FeedPage() {
       return next;
     });
 
+    if (!userId) return;
     if (newLiked) {
       await supabase.from('media_likes').insert({
         user_id: userId,
@@ -94,8 +128,6 @@ export default function FeedPage() {
   };
 
   const toggleBookmark = async (item: FeedItem, index: number) => {
-    if (!userId) return;
-
     const newBookmarked = !item.bookmarked;
     setItems(prev => {
       const next = [...prev];
@@ -103,6 +135,7 @@ export default function FeedPage() {
       return next;
     });
 
+    if (!userId) return;
     if (newBookmarked) {
       await supabase.from('media_bookmarks').insert({
         user_id: userId,
