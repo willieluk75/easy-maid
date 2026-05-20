@@ -52,9 +52,9 @@ const SKILL_LABELS: { key: keyof Worker; zh: string }[] = [
 function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
   if (!value) return null;
   return (
-    <div className="flex items-start py-2 border-b border-gray-50">
+    <div className="flex items-start py-2 border-b border-[#f7f7f7]">
       <span className="w-28 flex-shrink-0 text-xs text-[#929292]">{label}</span>
-      <span className="text-sm text-[#3f3f3f]">{value}</span>
+      <span className="text-sm text-[#222222]">{value}</span>
     </div>
   );
 }
@@ -184,14 +184,14 @@ export default function WorkerDetailPage() {
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {/* Profile header */}
-        <div className="bg-white rounded-[14px] p-5 flex items-center gap-4 shadow-sm">
+        <div className="bg-white rounded-[20px] p-5 flex items-center gap-4" style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}>
           <div className="w-20 h-20 rounded-[8px] overflow-hidden bg-[#f7f7f7] flex-shrink-0">
             {worker.photo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={worker.photo_url} alt={worker.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-10 h-10 text-[#c1c1c1]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -203,8 +203,8 @@ export default function WorkerDetailPage() {
             {worker.nationality && <p className="text-sm text-[#6a6a6a]">{worker.nationality}</p>}
             <span className={`mt-1 inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
               worker.status === 'available'
-                ? 'bg-green-100 text-green-700'
-                : 'bg-yellow-100 text-yellow-700'
+                ? 'bg-[#e8f5e9] text-[#2e7d32]'
+                : 'bg-[#fff8e1] text-[#e67e22]'
             }`}>
               {worker.status === 'available' ? 'Available' : 'Processing'}
             </span>
@@ -212,7 +212,7 @@ export default function WorkerDetailPage() {
         </div>
 
         {/* Basic info */}
-        <div className="bg-white rounded-[14px] px-5 py-3 shadow-sm">
+        <div className="bg-white rounded-[20px] px-5 py-3" style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}>
           <h3 className="text-xs font-semibold text-[#929292] uppercase tracking-wide mb-2">基本資料</h3>
           <InfoRow label="出生日期" value={worker.date_of_birth} />
           <InfoRow label="學歷" value={worker.education} />
@@ -221,7 +221,7 @@ export default function WorkerDetailPage() {
         </div>
 
         {/* Languages */}
-        <div className="bg-white rounded-[14px] px-5 py-3 shadow-sm">
+        <div className="bg-white rounded-[20px] px-5 py-3" style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}>
           <h3 className="text-xs font-semibold text-[#929292] uppercase tracking-wide mb-2">語言能力</h3>
           <InfoRow label="粵語" value={worker.lang_cantonese} />
           <InfoRow label="英語" value={worker.lang_english} />
@@ -230,11 +230,11 @@ export default function WorkerDetailPage() {
 
         {/* Skills */}
         {skills.length > 0 && (
-          <div className="bg-white rounded-[14px] px-5 py-3 shadow-sm">
+          <div className="bg-white rounded-[20px] px-5 py-3" style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}>
             <h3 className="text-xs font-semibold text-[#929292] uppercase tracking-wide mb-3">技能</h3>
             <div className="flex flex-wrap gap-2">
               {skills.map(s => (
-                <span key={s} className="text-xs bg-[#fff0f3] text-[#ff385c] px-3 py-1 rounded-full">
+                <span key={s} className="text-xs bg-[#f2f2f2] text-[#222222] px-3 py-1 rounded-full">
                   {s}
                 </span>
               ))}
@@ -244,7 +244,7 @@ export default function WorkerDetailPage() {
 
         {/* Media Gallery */}
         {media.length > 0 && (
-          <div className="bg-white rounded-[14px] px-5 py-3 shadow-sm">
+          <div className="bg-white rounded-[20px] px-5 py-3" style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}>
             <h3 className="text-xs font-semibold text-[#929292] uppercase tracking-wide mb-3">
               相片/影片 ({media.length})
             </h3>
@@ -253,7 +253,7 @@ export default function WorkerDetailPage() {
                 <button
                   key={m.id}
                   onClick={() => setLightboxIndex(i)}
-                  className="aspect-square rounded-[14px] overflow-hidden bg-[#f7f7f7] relative"
+                  className="aspect-square rounded-[8px] overflow-hidden bg-[#f7f7f7] relative"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={m.url} alt={m.caption || ''} className="w-full h-full object-cover" />
@@ -313,7 +313,7 @@ export default function WorkerDetailPage() {
                   src={media[lightboxIndex].url}
                   controls
                   autoPlay
-                  className="w-full max-h-[80vh] rounded-[14px]"
+                  className="w-full max-h-[80vh] rounded-[8px]"
                 />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -337,7 +337,7 @@ export default function WorkerDetailPage() {
 
         {/* Remarks */}
         {worker.remark && (
-          <div className="bg-white rounded-[14px] px-5 py-3 shadow-sm">
+          <div className="bg-white rounded-[20px] px-5 py-3" style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}>
             <h3 className="text-xs font-semibold text-[#929292] uppercase tracking-wide mb-2">備注</h3>
             <p className="text-sm text-[#222222] whitespace-pre-wrap">{worker.remark}</p>
           </div>
@@ -347,7 +347,7 @@ export default function WorkerDetailPage() {
         <div className="pb-8">
           <button
             onClick={handleContact}
-            className="w-full py-3 bg-[#ff385c] text-white font-semibold rounded-[14px] text-sm hover:bg-[#e00b41] active:bg-blue-800 transition-colors"
+            className="w-full h-12 bg-[#222222] text-white font-semibold rounded-[8px] text-sm hover:bg-black active:bg-black transition-colors"
           >
             聯絡外傭
           </button>
@@ -358,13 +358,13 @@ export default function WorkerDetailPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={() => !sending && setShowModal(false)}>
           <div
-            className="w-full max-w-lg bg-white rounded-t-3xl p-6 space-y-4"
+            className="w-full max-w-lg bg-white rounded-t-[20px] p-6 space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             {sent ? (
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-16 h-16 bg-[#e8f5e9] rounded-full flex items-center justify-center mx-auto">
+                  <svg className="w-8 h-8 text-[#2e7d32]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -372,7 +372,7 @@ export default function WorkerDetailPage() {
                 <p className="text-sm text-[#6a6a6a]">我們會盡快回覆您。</p>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="w-full py-3 bg-[#ff385c] text-white font-semibold rounded-[8px] text-sm"
+                  className="w-full py-3 bg-[#222222] text-white font-semibold rounded-[8px] text-sm hover:bg-black"
                 >
                   關閉
                 </button>
@@ -389,7 +389,7 @@ export default function WorkerDetailPage() {
                 </div>
 
                 {!employerId && (
-                  <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-[14px] text-sm">
+                  <div className="bg-[#fff8e1] border border-[#ffe0b2] text-[#e67e22] px-4 py-3 rounded-[8px] text-sm">
                     請先完成僱主登記才可發送詢問。
                     <a href="/signup" className="underline ml-1">前往登記</a>
                   </div>
@@ -403,20 +403,20 @@ export default function WorkerDetailPage() {
                     rows={4}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full px-3 py-2 border border-[#dddddd] rounded-[14px] text-sm focus:outline-none focus:ring-[#222222] focus:border-[#222222] resize-none"
+                    className="w-full px-3 py-2 border border-[#dddddd] rounded-[8px] text-sm focus:outline-none focus:ring-[#222222] focus:border-[#222222] resize-none"
                     placeholder="請輸入您想詢問的內容..."
                     disabled={!employerId}
                   />
                 </div>
 
                 {sendError && (
-                  <p className="text-red-600 text-sm">{sendError}</p>
+                  <p className="text-[#c13515] text-sm">{sendError}</p>
                 )}
 
                 <button
                   onClick={handleSendInquiry}
                   disabled={sending || !employerId}
-                  className="w-full py-3 bg-[#ff385c] text-white font-semibold rounded-[8px] text-sm hover:bg-[#e00b41] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-12 bg-[#222222] text-white font-semibold rounded-[8px] text-sm hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {sending ? '發送中...' : '發送詢問'}
                 </button>

@@ -73,7 +73,7 @@ export default function BottomTabBar() {
   if (hidden) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#dddddd] safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#f2f2f2] safe-area-bottom">
       <div className="max-w-lg mx-auto flex items-center justify-around h-14">
         {TABS.map(tab => {
           const active = pathname === tab.href || pathname.startsWith(tab.href + '/');
@@ -82,11 +82,11 @@ export default function BottomTabBar() {
               key={tab.href}
               href={tab.href}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
-                active ? 'text-[#ff385c]' : 'text-[#929292] hover:text-[#3f3f3f]'
+                active ? 'text-[#222222]' : 'text-[#6a6a6a] hover:text-[#222222]'
               }`}
             >
               {tab.icon(active)}
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <span className="text-xs font-medium">{tab.label}</span>
             </Link>
           );
         })}

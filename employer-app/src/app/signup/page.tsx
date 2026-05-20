@@ -80,115 +80,85 @@ export default function SignUp() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#f7f7f7] px-4 py-8">
-      <div className="max-w-md w-full space-y-6 bg-white p-8 rounded-[14px] shadow-md">
+      <div className="max-w-md w-full space-y-6 bg-white p-8 rounded-[20px]" style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}>
         <div>
-          <h2 className="text-center text-3xl font-bold text-[#222222]">僱主登記</h2>
-          <p className="mt-2 text-center text-sm text-[#3f3f3f]">
+          <h2 className="text-center text-[28px] font-bold text-[#222222]">僱主登記</h2>
+          <p className="mt-2 text-center text-sm text-[#6a6a6a]">
             已有帳號？{' '}
-            <a href="/signin" className="text-[#ff385c] hover:text-[#e00b41]">
+            <a href="/signin" className="text-[#222222] font-semibold hover:text-[#ff385c]">
               登入
             </a>
           </p>
         </div>
 
         {error && (
-          <div className="bg-[#fff5f5] border border-[#ffcdd2] text-[#c13515] px-4 py-3 rounded">
+          <div className="bg-[#fff5f5] border border-[#c13515]/20 text-[#c13515] px-4 py-3 rounded-[8px]">
             {error}
           </div>
         )}
 
         <form className="space-y-4" onSubmit={handleSignUp}>
-          <div>
-            <label className="block text-sm font-medium text-[#222222]">
-              聯絡人姓名 <span className="text-[#c13515]">*</span>
-            </label>
+          <input
+            type="text"
+            required
+            value={contactName}
+            onChange={(e) => setContactName(e.target.value)}
+            className="block w-full h-14 px-4 border-[1.5px] border-[#dddddd] rounded-[8px] focus:outline-none focus:border-[#222222] focus:ring-2 focus:ring-[#222222] text-sm"
+            placeholder="聯絡人姓名 *"
+          />
+
+          <input
+            type="text"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            className="block w-full h-14 px-4 border-[1.5px] border-[#dddddd] rounded-[8px] focus:outline-none focus:border-[#222222] focus:ring-2 focus:ring-[#222222] text-sm"
+            placeholder="公司名稱（選填）"
+          />
+
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="block w-full h-14 px-4 border-[1.5px] border-[#dddddd] rounded-[8px] focus:outline-none focus:border-[#222222] focus:ring-2 focus:ring-[#222222] text-sm"
+            placeholder="電話（選填）"
+          />
+
+          <select
+            value={district}
+            onChange={(e) => setDistrict(e.target.value)}
+            className="block w-full h-14 px-4 border-[1.5px] border-[#dddddd] rounded-[8px] focus:outline-none focus:border-[#222222] focus:ring-2 focus:ring-[#222222] text-sm"
+          >
+            <option value="">請選擇地區（選填）</option>
+            {DISTRICTS.map(d => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+
+          <div className="border-t border-[#dddddd] pt-4 space-y-4">
             <input
-              type="text"
+              type="email"
               required
-              value={contactName}
-              onChange={(e) => setContactName(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-[#dddddd] rounded-[8px] shadow-sm focus:outline-none focus:ring-[#222222] focus:border-[#222222]"
-              placeholder="陳大文"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="block w-full h-14 px-4 border-[1.5px] border-[#dddddd] rounded-[8px] focus:outline-none focus:border-[#222222] focus:ring-2 focus:ring-[#222222] text-sm"
+              placeholder="Email *"
             />
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-[#222222]">
-              公司名稱（選填）
-            </label>
-            <input
-              type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-[#dddddd] rounded-[8px] shadow-sm focus:outline-none focus:ring-[#222222] focus:border-[#222222]"
-              placeholder="ABC 有限公司"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#222222]">
-              電話（選填）
-            </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-[#dddddd] rounded-[8px] shadow-sm focus:outline-none focus:ring-[#222222] focus:border-[#222222]"
-              placeholder="9123 4567"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#222222]">
-              地區（選填）
-            </label>
-            <select
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-[#dddddd] rounded-[8px] shadow-sm focus:outline-none focus:ring-[#222222] focus:border-[#222222]"
-            >
-              <option value="">請選擇</option>
-              {DISTRICTS.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="border-t border-[#dddddd] pt-4">
-            <div>
-              <label className="block text-sm font-medium text-[#222222]">
-                Email <span className="text-[#c13515]">*</span>
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-[#dddddd] rounded-[8px] shadow-sm focus:outline-none focus:ring-[#222222] focus:border-[#222222]"
-                placeholder="your@email.com"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#222222]">
-              密碼 <span className="text-[#c13515]">*</span>
-            </label>
             <input
               type="password"
               required
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-[#dddddd] rounded-[8px] shadow-sm focus:outline-none focus:ring-[#222222] focus:border-[#222222]"
-              placeholder="至少 6 位"
+              className="block w-full h-14 px-4 border-[1.5px] border-[#dddddd] rounded-[8px] focus:outline-none focus:border-[#222222] focus:ring-2 focus:ring-[#222222] text-sm"
+              placeholder="密碼 *"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-[8px] shadow-sm text-sm font-medium text-white bg-[#ff385c] hover:bg-[#e00b41] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#222222] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-12 flex justify-center px-4 rounded-[8px] text-sm font-semibold text-white bg-[#222222] hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#222222] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? '登記中...' : '登記'}
           </button>
@@ -203,19 +173,21 @@ export default function SignUp() {
           </div>
         </div>
 
-        <button
-          onClick={handleGoogleSignUp}
-          disabled={loading}
-          className="w-full flex items-center justify-center px-4 py-3 border border-[#dddddd] rounded-[8px] shadow-sm text-sm font-medium text-[#222222] bg-white hover:bg-[#f7f7f7] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-          </svg>
-          使用 Google 登記
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleGoogleSignUp}
+            disabled={loading}
+            className="w-12 h-12 flex items-center justify-center rounded-full border border-[#dddddd] bg-white hover:bg-[#f7f7f7] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+            </svg>
+          </button>
+          <span className="text-sm text-[#6a6a6a]">使用 Google 登記</span>
+        </div>
       </div>
     </main>
   );

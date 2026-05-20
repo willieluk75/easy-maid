@@ -362,7 +362,7 @@ export default function ProfilePage() {
                       onChange={e => handleCaptionChange(i, e.target.value)}
                       placeholder="加入說明（最多100字）..."
                       rows={3}
-                      className="w-full px-3 py-2.5 border border-[#dddddd] rounded-[8px] text-sm text-[#222222] placeholder-gray-400 resize-none focus:outline-none focus:border-blue-400"
+                      className="w-full px-3 py-2.5 border border-[#dddddd] rounded-[8px] text-sm text-[#222222] placeholder:text-[#929292] resize-none focus:outline-none focus:border-[#222222]"
                     />
                     <p className="text-right text-xs text-[#929292] mt-1">{pf.caption.length}/100</p>
                   </div>

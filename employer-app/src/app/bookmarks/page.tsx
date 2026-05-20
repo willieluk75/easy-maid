@@ -118,7 +118,7 @@ export default function BookmarksPage() {
           <p className="text-lg text-[#6a6a6a] mb-8">登入後查看收藏</p>
           <Link
             href="/signin"
-            className="bg-[#222222] text-white text-sm font-semibold rounded-[12px] px-8 py-3.5 hover:bg-[#404040] transition-colors"
+            className="bg-[#222222] text-white text-sm font-semibold rounded-[8px] px-8 h-12 hover:bg-black transition-colors"
           >
             登入
           </Link>
@@ -164,12 +164,12 @@ export default function BookmarksPage() {
               className="flex items-start gap-4 bg-white rounded-[20px] p-4 animate-pulse"
               style={{ boxShadow: CARD_SHADOW }}
             >
-              <div className="w-20 h-20 rounded-[16px] bg-[#dddddd] flex-shrink-0" />
+              <div className="w-20 h-20 rounded-[8px] bg-[#dddddd] flex-shrink-0" />
               <div className="flex-1 min-w-0 space-y-2">
                 <div className="h-5 w-28 bg-[#dddddd] rounded" />
                 <div className="h-4 w-20 bg-[#dddddd] rounded-full" />
               </div>
-              <svg className="w-4 h-4 text-gray-300 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-[#c1c1c1] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
@@ -181,7 +181,7 @@ export default function BookmarksPage() {
           <p className="text-lg text-[#6a6a6a] mb-8">還沒有收藏</p>
           <Link
             href="/workers"
-            className="bg-[#222222] text-white text-sm font-semibold rounded-[12px] px-8 py-3.5 hover:bg-[#404040] transition-colors"
+            className="bg-[#222222] text-white text-sm font-semibold rounded-[8px] px-8 h-12 hover:bg-black transition-colors"
           >
             探索外傭
           </Link>
@@ -196,7 +196,7 @@ export default function BookmarksPage() {
               style={{ boxShadow: CARD_SHADOW }}
             >
               {/* Thumbnail */}
-              <div className="w-20 h-20 rounded-[16px] overflow-hidden bg-[#f7f7f7] flex-shrink-0 relative">
+              <div className="w-20 h-20 rounded-[8px] overflow-hidden bg-[#f7f7f7] flex-shrink-0 relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={item.url} alt={item.caption || ''} className="w-full h-full object-cover" />
                 {item.type === 'video' && (
@@ -219,7 +219,7 @@ export default function BookmarksPage() {
               </div>
 
               {/* Chevron */}
-              <svg className="w-4 h-4 text-gray-300 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-[#c1c1c1] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
