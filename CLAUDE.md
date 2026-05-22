@@ -23,10 +23,17 @@ No test suite configured yet.
 
 ## Environment Variables
 
-Both apps need `.env.local`:
+**Local Development (.env.local):**
 ```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<local anon key>
+```
+Local Supabase runs via Docker at `/home/user/supabase/`. Start: `cd /home/user/supabase && docker compose up -d`
+
+**Production (Vercel env vars):**
+```
+NEXT_PUBLIC_SUPABASE_URL=https://apytwhemutebpokzkpis.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<production anon key>
 ```
 
 ## Tech Stack

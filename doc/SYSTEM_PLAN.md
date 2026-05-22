@@ -16,8 +16,33 @@
 | Employer（僱主）| 瀏覽外傭、收藏、發出詢問 |
 | Admin（管理員）| 審核 pending 外傭、分配編號、管理狀態 |
 
-**Tech Stack:** Next.js 15 App Router · TypeScript · Tailwind CSS · Supabase (Auth + PostgreSQL + Storage)
-**Project ID:** `apytwhemutebpokzkpis` (ap-northeast-1 東京)
+**Tech Stack:** Next.js 16 App Router · TypeScript · Tailwind CSS v4 · Supabase (Auth + PostgreSQL + Storage)
+
+### Supabase 環境
+
+| 環境 | 用途 | 位置 | 切換方式 |
+|------|------|------|----------|
+| **Local (Docker)** | 開發 + 測試 | `/home/user/supabase/` (Docker Compose) | `.env.local` 指向 `http://localhost:8000` |
+| **Production** | 正式環境 | `apytwhemutebpokzkpis` (ap-northeast-1 東京) | `.env.production` 或 Vercel 環境變數 |
+
+**Local Docker Supabase 配置：**
+- 目錄：`/home/user/supabase/`
+- API（Kong）：`http://localhost:8000`
+- Studio：`http://localhost:3000`（需注意與 Worker App 端口衝突，建議改為 `http://localhost:3002`）
+- 啟動：`cd /home/user/supabase && docker compose up -d`
+- 停止：`cd /home/user/supabase && docker compose down`
+
+**開發時 .env.local 範例：**
+```
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<local anon key from /home/user/supabase/.env>
+```
+
+**Production 環境變數（Vercel）：**
+```
+NEXT_PUBLIC_SUPABASE_URL=https://apytwhemutebpokzkpis.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<production anon key>
+```
 
 ---
 
@@ -237,6 +262,7 @@ CREATE TABLE worker_bookmarks (
 | 圖片儲存 | Supabase Storage public bucket | 簡單直接，公開 URL |
 | 角色選擇 | Signup 時選擇 | 比事後判斷更清晰 |
 | **部署架構** | **同一 repo，兩個獨立 Next.js App 目錄** | Worker 和 Employer 功能完全分開，部署到不同 domain，共用同一 Supabase DB |
+| **Supabase 環境** | **Local Docker (開發) / Cloud (Production)** | 開發用本機 Docker Supabase 測試，Production 用雲端 Supabase，透過 .env.local / .env.production 切換 |
 
 ---
 
@@ -272,12 +298,16 @@ easy_maid_Feb_start/          ← repo root
 
 ### 啟動指令
 ```bash
-# Worker App
-npm run dev            # http://localhost:3000
+# 先啟動 Local Supabase（開發環境）
+cd /home/user/supabase && docker compose up -d
 
-# Employer App
+# Worker App（port 3000）
+# 注意：Supabase Studio 也用 port 3000，需修改 /home/user/supabase/.env 的 STUDIO_PORT
+npm run dev
+
+# Employer App（port 3001）
 cd employer-app
-npm run dev            # http://localhost:3001
+npm run dev
 ```
 
 ---
