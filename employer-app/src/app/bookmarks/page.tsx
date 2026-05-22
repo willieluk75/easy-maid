@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-interface BookmarkItem {
+interface MediaBookmarkItem {
   id: string;
   media_id: string;
   url: string;
@@ -15,6 +15,16 @@ interface BookmarkItem {
   worker_name: string;
   nationality: string | null;
   photo_url: string | null;
+  created_at: string;
+}
+
+interface WorkerBookmarkItem {
+  bookmark_id: string;
+  worker_id: string;
+  name: string;
+  nationality: string | null;
+  photo_url: string | null;
+  status: string;
   created_at: string;
 }
 
@@ -43,8 +53,12 @@ const TABS = [
   )},
 ];
 
+type ActiveTab = 'workers' | 'media';
+
 export default function BookmarksPage() {
-  const [mediaBookmarks, setMediaBookmarks] = useState<BookmarkItem[]>([]);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('workers');
+  const [mediaBookmarks, setMediaBookmarks] = useState<MediaBookmarkItem[]>([]);
+  const [workerBookmarks, setWorkerBookmarks] = useState<WorkerBookmarkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const pathname = usePathname();
@@ -58,14 +72,15 @@ export default function BookmarksPage() {
         return;
       }
 
-      const { data: bookmarks } = await supabase
+      // Fetch media bookmarks
+      const { data: mediaBm } = await supabase
         .from('media_bookmarks')
         .select('id, media_id, created_at')
         .eq('user_id', uid)
         .order('created_at', { ascending: false });
 
-      if (bookmarks && bookmarks.length > 0) {
-        const mediaIds = bookmarks.map(b => b.media_id);
+      if (mediaBm && mediaBm.length > 0) {
+        const mediaIds = mediaBm.map(b => b.media_id);
         const { data: mediaData } = await supabase
           .from('worker_media')
           .select('id, url, type, caption, worker_id')
@@ -80,9 +95,9 @@ export default function BookmarksPage() {
 
           const workerMap = new Map((workersData || []).map(w => [w.id, w]));
 
-          const items: BookmarkItem[] = mediaData.map(m => {
+          const items: MediaBookmarkItem[] = mediaData.map(m => {
             const w = workerMap.get(m.worker_id);
-            const bm = bookmarks.find(b => b.media_id === m.id);
+            const bm = mediaBm.find(b => b.media_id === m.id);
             return {
               id: bm?.id || '',
               media_id: m.id,
@@ -99,6 +114,42 @@ export default function BookmarksPage() {
           setMediaBookmarks(items);
         }
       }
+
+      // Fetch worker bookmarks
+      const { data: workerBm } = await supabase
+        .from('worker_bookmarks')
+        .select('id, worker_id, created_at')
+        .eq('user_id', uid)
+        .order('created_at', { ascending: false });
+
+      if (workerBm && workerBm.length > 0) {
+        const wIds = workerBm.map(b => b.worker_id);
+        const { data: wData } = await supabase
+          .from('workers')
+          .select('id, name, nationality, photo_url, status')
+          .in('id', wIds);
+
+        if (wData) {
+          const wMap = new Map(wData.map(w => [w.id, w]));
+          const items: WorkerBookmarkItem[] = workerBm
+            .map(b => {
+              const w = wMap.get(b.worker_id);
+              if (!w) return null;
+              return {
+                bookmark_id: b.id,
+                worker_id: b.worker_id,
+                name: w.name,
+                nationality: w.nationality,
+                photo_url: w.photo_url,
+                status: w.status,
+                created_at: b.created_at,
+              };
+            })
+            .filter((item): item is WorkerBookmarkItem => item !== null);
+          setWorkerBookmarks(items);
+        }
+      }
+
       setLoading(false);
     });
   }, []);
@@ -147,12 +198,44 @@ export default function BookmarksPage() {
     );
   }
 
+  const currentItems = activeTab === 'workers' ? workerBookmarks : mediaBookmarks;
+
   return (
     <div className="min-h-screen bg-[#f7f7f7] pb-14">
       {/* Top nav */}
       <div className="sticky top-0 z-10 bg-white border-b border-[#f2f2f2]">
         <div className="max-w-lg mx-auto px-4 py-3">
           <h1 className="text-[28px] font-bold text-[#222222]">收藏</h1>
+        </div>
+
+        {/* Dual Tabs */}
+        <div className="max-w-lg mx-auto flex">
+          <button
+            onClick={() => setActiveTab('workers')}
+            className={`flex-1 py-3 text-sm font-semibold text-center relative transition-colors ${
+              activeTab === 'workers' ? 'text-[#222222]' : 'text-[#929292]'
+            }`}
+          >
+            外傭
+            <span
+              className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] rounded-full transition-all ${
+                activeTab === 'workers' ? 'w-8 bg-[#222222]' : 'w-0 bg-transparent'
+              }`}
+            />
+          </button>
+          <button
+            onClick={() => setActiveTab('media')}
+            className={`flex-1 py-3 text-sm font-semibold text-center relative transition-colors ${
+              activeTab === 'media' ? 'text-[#222222]' : 'text-[#929292]'
+            }`}
+          >
+            媒體
+            <span
+              className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] rounded-full transition-all ${
+                activeTab === 'media' ? 'w-8 bg-[#222222]' : 'w-0 bg-transparent'
+              }`}
+            />
+          </button>
         </div>
       </div>
 
@@ -175,16 +258,67 @@ export default function BookmarksPage() {
             </div>
           ))}
         </div>
-      ) : mediaBookmarks.length === 0 ? (
+      ) : currentItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 px-4">
           <span className="text-6xl mb-6">🔖</span>
-          <p className="text-lg text-[#6a6a6a] mb-8">還沒有收藏</p>
+          <p className="text-lg text-[#6a6a6a] mb-8">
+            {activeTab === 'workers' ? '還沒有收藏外傭' : '還沒有收藏媒體'}
+          </p>
           <Link
             href="/workers"
             className="bg-[#222222] text-white text-sm font-semibold rounded-[8px] px-8 h-12 hover:bg-black transition-colors"
           >
             探索外傭
           </Link>
+        </div>
+      ) : activeTab === 'workers' ? (
+        <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
+          {workerBookmarks.map(item => (
+            <Link
+              key={item.bookmark_id}
+              href={`/workers/${item.worker_id}`}
+              className="flex items-center gap-4 bg-white rounded-[20px] p-4 active:bg-[#f7f7f7] transition-colors"
+              style={{ boxShadow: CARD_SHADOW }}
+            >
+              {/* Avatar */}
+              <div className="w-16 h-16 rounded-full overflow-hidden bg-[#f7f7f7] flex-shrink-0">
+                {item.photo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.photo_url} alt={item.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-[#c1c1c1]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-semibold text-[#222222] truncate">{item.name}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  {item.nationality && (
+                    <span className="inline-block text-xs bg-[#f2f2f2] text-[#222222] px-2.5 py-0.5 rounded-full">
+                      {item.nationality}
+                    </span>
+                  )}
+                  <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
+                    item.status === 'available'
+                      ? 'bg-[#e8f5e9] text-[#2e7d32]'
+                      : 'bg-[#fff8e1] text-[#e67e22]'
+                  }`}>
+                    {item.status === 'available' ? 'Available' : 'Processing'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Chevron */}
+              <svg className="w-4 h-4 text-[#c1c1c1] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          ))}
         </div>
       ) : (
         <div className="max-w-lg mx-auto px-4 py-4 space-y-3">

@@ -78,6 +78,10 @@ export default function WorkerDetailPage() {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
+  // Bookmark
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkBusy, setBookmarkBusy] = useState(false);
+
   // Inquiry modal
   const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState('');
@@ -97,6 +101,15 @@ export default function WorkerDetailPage() {
           .eq('user_id', uid)
           .maybeSingle();
         setEmployerId(emp?.id ?? null);
+
+        // Check worker_bookmarks
+        const { data: bm } = await supabase
+          .from('worker_bookmarks')
+          .select('id')
+          .eq('user_id', uid)
+          .eq('worker_id', workerId)
+          .maybeSingle();
+        setIsBookmarked(!!bm);
       }
     });
 
@@ -121,6 +134,36 @@ export default function WorkerDetailPage() {
         if (!error && data) setMedia(data as MediaItem[]);
       });
   }, [workerId]);
+
+  const handleToggleBookmark = async () => {
+    if (!userId) {
+      router.push('/signin');
+      return;
+    }
+    if (bookmarkBusy) return;
+    setBookmarkBusy(true);
+
+    // Optimistic update
+    const prevBookmarked = isBookmarked;
+    setIsBookmarked(!prevBookmarked);
+
+    if (prevBookmarked) {
+      // Delete
+      const { error } = await supabase
+        .from('worker_bookmarks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('worker_id', workerId);
+      if (error) setIsBookmarked(true); // revert
+    } else {
+      // Insert
+      const { error } = await supabase
+        .from('worker_bookmarks')
+        .insert({ user_id: userId, worker_id: workerId });
+      if (error) setIsBookmarked(false); // revert
+    }
+    setBookmarkBusy(false);
+  };
 
   const handleContact = () => {
     if (!userId) {
@@ -343,11 +386,31 @@ export default function WorkerDetailPage() {
           </div>
         )}
 
-        {/* Contact button */}
-        <div className="pb-8">
+        {/* Contact + Bookmark buttons */}
+        <div className="pb-8 flex gap-3">
+          <button
+            onClick={handleToggleBookmark}
+            disabled={bookmarkBusy}
+            className={`flex-shrink-0 h-12 px-4 font-semibold rounded-[8px] text-sm transition-colors border flex items-center justify-center gap-2 ${
+              isBookmarked
+                ? 'border-[#222222] text-[#222222] bg-[#f7f7f7]'
+                : 'border-[#dddddd] text-[#6a6a6a] bg-white hover:border-[#222222] hover:text-[#222222]'
+            }`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill={isBookmarked ? 'currentColor' : 'none'}
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+            </svg>
+            {isBookmarked ? '已收藏' : '收藏'}
+          </button>
           <button
             onClick={handleContact}
-            className="w-full h-12 bg-[#222222] text-white font-semibold rounded-[8px] text-sm hover:bg-black active:bg-black transition-colors"
+            className="flex-1 h-12 bg-[#222222] text-white font-semibold rounded-[8px] text-sm hover:bg-black active:bg-black transition-colors"
           >
             聯絡外傭
           </button>
