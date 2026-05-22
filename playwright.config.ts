@@ -35,7 +35,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:3001',
       },
-      testMatch: /employer-app\.spec\.ts/,
+      testMatch: [/employer-app\.spec\.ts/, /phase3-inquiry\.spec\.ts/],
     },
   ],
 
