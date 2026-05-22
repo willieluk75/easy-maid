@@ -28,7 +28,7 @@
 **Local Docker Supabase 配置：**
 - 目錄：`/home/user/supabase/`
 - API（Kong）：`http://localhost:8000`
-- Studio：`http://localhost:3000`（需注意與 Worker App 端口衝突，建議改為 `http://localhost:3002`）
+- Studio：`http://localhost:3002`
 - 啟動：`cd /home/user/supabase && docker compose up -d`
 - 停止：`cd /home/user/supabase && docker compose down`
 
@@ -302,7 +302,6 @@ easy_maid_Feb_start/          ← repo root
 cd /home/user/supabase && docker compose up -d
 
 # Worker App（port 3000）
-# 注意：Supabase Studio 也用 port 3000，需修改 /home/user/supabase/.env 的 STUDIO_PORT
 npm run dev
 
 # Employer App（port 3001）
