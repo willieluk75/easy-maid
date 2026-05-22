@@ -35,6 +35,7 @@ yarn-error.log*
 
 # env files
 .env*.local
+.env*.production
 .env
 
 # vercel
@@ -58,3 +59,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Playwright
+test-results/
+playwright-report/
+test-results/
+supabase/generate_seed.py

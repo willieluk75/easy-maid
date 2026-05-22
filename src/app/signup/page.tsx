@@ -67,7 +67,7 @@ export default function SignUp() {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -79,6 +79,10 @@ export default function SignUp() {
       setError(error.message);
       setLoading(false);
     } else {
+      // Insert user role for worker app
+      if (authData.user) {
+        await supabase.from('user_roles').insert({ user_id: authData.user.id, role: 'worker' });
+      }
       setSuccess(true);
       setLoading(false);
       setTimeout(() => {

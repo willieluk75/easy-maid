@@ -37,6 +37,17 @@ export default function ProfilePage() {
       }
       setUserId(data.user.id);
 
+      // Ensure user has a role (for OAuth users who bypass signup page)
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .maybeSingle();
+
+      if (!existingRole) {
+        await supabase.from('user_roles').insert({ user_id: data.user.id, role: 'employer' });
+      }
+
       const { data: emp } = await supabase
         .from('employers')
         .select('id, contact_name, company_name, phone, district')

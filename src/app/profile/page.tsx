@@ -185,6 +185,17 @@ export default function ProfilePage() {
     if (!user) { router.push('/signin'); return; }
     setUserId(user.id);
 
+    // Ensure user has a role (for OAuth users who bypass signup page)
+    const { data: existingRole } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (!existingRole) {
+      await supabase.from('user_roles').insert({ user_id: user.id, role: 'worker' });
+    }
+
     const { data: w } = await supabase
       .from('workers').select('*').eq('user_id', user.id).single();
 
