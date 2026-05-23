@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-/* Fix: Tailwind v4 preflight sets a{color:inherit} which breaks text-white on Links */
-a { color: revert-layer; }
+
 
 :root {
   /* Airbnb Design System Colors */
@@ -142,14 +141,16 @@ body {
   cursor: not-allowed;
 }
 
-/* Link style */
-a {
-  color: var(--ink-black);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-a:hover {
-  color: var(--rausch);
+/* Link style — inside @layer base so Tailwind utilities (e.g. text-white) can override */
+@layer base {
+  a {
+    color: var(--ink-black);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  a:hover {
+    color: var(--rausch);
+  }
 }
 
 /* Scrollbar */

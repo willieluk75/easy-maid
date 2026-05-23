@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-/* Fix: Tailwind v4 preflight sets a{color:inherit} which breaks text-white on Links */
-a { color: revert-layer; }
+
 
 :root {
   --canvas-white: #ffffff;
@@ -93,14 +92,16 @@ body {
   cursor: not-allowed;
 }
 
-/* Link style */
-a {
-  color: var(--ink-black);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-a:hover {
-  color: var(--ash-gray);
+/* Link style — inside @layer base so Tailwind utilities can override */
+@layer base {
+  a {
+    color: var(--ink-black);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  a:hover {
+    color: var(--ash-gray);
+  }
 }
 
 /* Airbnb-style card */
