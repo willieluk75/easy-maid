@@ -25,22 +25,73 @@ interface FeedItem {
   like_count: number;
   liked: boolean;
   bookmarked: boolean;
+  comment_count?: number;
+}
+
+interface Comment {
+  id: string;
+  media_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  author_name: string | null;
+  author_photo: string | null;
+}
+
+const PAGE_SIZE = 20;
+
+function FeedSkeleton() {
+  return (
+    <div className="max-w-[512px] mx-auto py-4 px-4 space-y-4">
+      {Array.from({ length: 2 }).map((_, i) => (
+        <div key={i} className="bg-white rounded-[20px] overflow-hidden animate-pulse"
+          style={{ boxShadow: 'rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px' }}>
+          {/* Header skeleton */}
+          <div className="flex items-center gap-3 px-4 py-3">
+            <div className="w-10 h-10 rounded-full bg-[#f7f7f7]" />
+            <div className="space-y-1.5">
+              <div className="h-4 w-24 bg-[#f7f7f7] rounded" />
+              <div className="h-3 w-12 bg-[#f7f7f7] rounded-full" />
+            </div>
+          </div>
+          {/* Image skeleton */}
+          <div className="aspect-[16/10] bg-[#f7f7f7]" />
+          {/* Actions skeleton */}
+          <div className="px-4 py-3 flex items-center gap-2">
+            <div className="h-5 w-5 bg-[#f7f7f7] rounded-full" />
+            <div className="h-4 w-8 bg-[#f7f7f7] rounded" />
+            <div className="flex-1" />
+            <div className="h-5 w-5 bg-[#f7f7f7] rounded-full" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function FeedPage() {
   const router = useRouter();
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, Comment[]>>({});
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+  const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
 
   const loadFeed = useCallback(async (uid: string | null) => {
     const { data, error } = await supabase.rpc('get_feed', {
       p_user_id: uid ?? null,
+      p_offset: 0,
+      p_limit: PAGE_SIZE,
     });
     if (!error && data && data.length > 0) {
       setItems(data as FeedItem[]);
+      setHasMore(data.length >= PAGE_SIZE);
     } else {
       setItems(DEMO_FEED);
+      setHasMore(false);
     }
     setLoading(false);
   }, []);
@@ -55,6 +106,79 @@ export default function FeedPage() {
 
   const isDemoModeRef = useRef(false);
   isDemoModeRef.current = items.length > 0 && items[0].id.startsWith('demo-');
+
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore || isDemoModeRef.current) return;
+    setLoadingMore(true);
+    const { data, error } = await supabase.rpc('get_feed', {
+      p_user_id: userId ?? null,
+      p_offset: items.length,
+      p_limit: PAGE_SIZE,
+    });
+    if (!error && data && data.length > 0) {
+      setItems(prev => [...prev, ...(data as FeedItem[])]);
+      setHasMore(data.length >= PAGE_SIZE);
+    } else {
+      setHasMore(false);
+    }
+    setLoadingMore(false);
+  };
+
+  const loadComments = async (mediaId: string) => {
+    const { data } = await supabase
+      .from('media_comments')
+      .select('id, media_id, user_id, content, created_at')
+      .eq('media_id', mediaId)
+      .order('created_at', { ascending: true });
+    if (data && data.length > 0) {
+      // Get author info
+      const userIds = [...new Set(data.map(c => c.user_id))];
+      const { data: workers } = await supabase
+        .from('workers')
+        .select('user_id, name, photo_url')
+        .in('user_id', userIds);
+      const workerMap = Object.fromEntries((workers || []).map((w: any) => [w.user_id, { name: w.name, photo_url: w.photo_url }]));
+      const enriched = data.map(c => ({
+        ...c,
+        author_name: workerMap[c.user_id]?.name ?? null,
+        author_photo: workerMap[c.user_id]?.photo_url ?? null,
+      }));
+      setComments(prev => ({ ...prev, [mediaId]: enriched as Comment[] }));
+    }
+    setExpandedComments(prev => new Set(prev).add(mediaId));
+  };
+
+  const handleSubmitComment = async (mediaId: string) => {
+    const text = commentInputs[mediaId]?.trim();
+    if (!text || !userId) return;
+
+    const { data } = await supabase
+      .from('media_comments')
+      .insert({ media_id: mediaId, user_id: userId, content: text })
+      .select('id, media_id, user_id, content, created_at')
+      .single();
+
+    if (data) {
+      const { data: w } = await supabase
+        .from('workers')
+        .select('name, photo_url')
+        .eq('user_id', userId)
+        .single();
+      const newComment: Comment = {
+        ...data,
+        author_name: w?.name ?? null,
+        author_photo: w?.photo_url ?? null,
+      };
+      setComments(prev => ({
+        ...prev,
+        [mediaId]: [...(prev[mediaId] || []), newComment],
+      }));
+      setCommentInputs(prev => ({ ...prev, [mediaId]: '' }));
+      setItems(prev => prev.map(it =>
+        it.id === mediaId ? { ...it, comment_count: (it.comment_count ?? 0) + 1 } : it
+      ));
+    }
+  };
 
   const handleLike = async (item: FeedItem) => {
     if (!userId && !isDemoModeRef.current) { router.push('/signin'); return; }
@@ -102,14 +226,11 @@ export default function FeedPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4">
-        <div className="w-16 h-16 rounded-[16px] bg-[#f7f7f7] flex items-center justify-center">
-          <svg className="w-8 h-8 text-[#c1c1c1] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+      <div className="min-h-screen bg-[#f7f7f7]">
+        <div className="sticky top-0 z-10 bg-white border-b border-[#f2f2f2] px-6 py-4 flex items-center justify-between">
+          <h1 className="text-[28px] font-bold text-[#222222]">動態</h1>
         </div>
-        <p className="text-sm text-[#6a6a6a] font-normal">正在載入動態...</p>
+        <FeedSkeleton />
       </div>
     );
   }
@@ -120,6 +241,13 @@ export default function FeedPage() {
       <div className="sticky top-0 z-10 bg-white border-b border-[#f2f2f2] px-6 py-4 flex items-center justify-between">
         <h1 className="text-[28px] font-bold text-[#222222]">動態</h1>
         <div className="flex items-center gap-3">
+          {userId && (
+            <Link href="/notifications" className="relative text-[14px] text-[#222222] font-semibold hover:text-[#ff385c] transition-colors">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              </svg>
+            </Link>
+          )}
           {userId ? (
             <Link href="/profile" className="text-[14px] text-[#222222] font-semibold hover:text-[#ff385c] transition-colors">我的資料</Link>
           ) : (
@@ -253,8 +381,88 @@ export default function FeedPage() {
               )}
 
               {!item.caption && <div className="pb-2" />}
+
+              {/* Comments section */}
+              {!isDemoModeRef.current && (
+                <div className="px-4 pb-3 border-t border-[#f2f2f2] mt-1">
+                  {/* Comment toggle */}
+                  <button
+                    onClick={() => {
+                      if (!expandedComments.has(item.id)) loadComments(item.id);
+                      else setExpandedComments(prev => { const next = new Set(prev); next.delete(item.id); return next; });
+                    }}
+                    className="text-sm text-[#6a6a6a] font-medium py-2"
+                  >
+                    {expandedComments.has(item.id) ? '隱藏留言' : `查看留言${item.comment_count ? ` (${item.comment_count})` : ''}`}
+                  </button>
+
+                  {/* Comments list */}
+                  {expandedComments.has(item.id) && comments[item.id]?.map(c => (
+                    <div key={c.id} className="flex items-start gap-2 py-1.5">
+                      <div className="w-6 h-6 rounded-full overflow-hidden bg-[#f7f7f7] flex-shrink-0 mt-0.5">
+                        {c.author_photo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={c.author_photo} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-[#c1c1c1]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-xs font-semibold text-[#222222]">{c.author_name}</span>
+                        <span className="text-xs text-[#6a6a6a] ml-1">{c.content}</span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Comment input */}
+                  {userId && (
+                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f2f2f2]">
+                      <input
+                        type="text"
+                        value={commentInputs[item.id] || ''}
+                        onChange={e => setCommentInputs(prev => ({ ...prev, [item.id]: e.target.value }))}
+                        onKeyDown={e => { if (e.key === 'Enter') handleSubmitComment(item.id); }}
+                        placeholder="留言..."
+                        className="flex-1 text-xs bg-[#f7f7f7] rounded-full px-3 py-2 placeholder-[#929292] focus:outline-none focus:ring-1 focus:ring-[#222222]"
+                      />
+                      <button
+                        onClick={() => handleSubmitComment(item.id)}
+                        className="text-xs font-semibold text-[#ff385c] disabled:text-[#c1c1c1]"
+                        disabled={!commentInputs[item.id]?.trim()}
+                      >
+                        發送
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </article>
           ))}
+
+          {/* Load More */}
+          {hasMore && !isDemoModeRef.current && (
+            <div className="flex justify-center py-4">
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="px-6 py-3 bg-white text-[#222222] text-sm font-semibold rounded-full border border-[#dddddd] hover:bg-[#f7f7f7] transition-colors disabled:opacity-50"
+              >
+                {loadingMore ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    載入中...
+                  </span>
+                ) : '載入更多'}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -56,6 +56,7 @@ interface Worker {
   allergy_details: string | null;
   remark: string | null;
   status: string;
+  banner_url: string | null;
 }
 
 interface OverseasExp {
@@ -171,12 +172,14 @@ export default function ProfilePage() {
   const [duties, setDuties] = useState<Duty[]>([]);
   const [userId, setUserId] = useState('');
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [bannerUploading, setBannerUploading] = useState(false);
   const [media, setMedia] = useState<WorkerMedia[]>([]);
   const [mediaUploading, setMediaUploading] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [showCaptionModal, setShowCaptionModal] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const mediaInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { loadData(); }, []);
 
@@ -235,6 +238,25 @@ export default function ProfilePage() {
       setWorker(prev => prev ? { ...prev, photo_url: data.publicUrl } : prev);
     }
     setPhotoUploading(false);
+  };
+
+  const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !worker || !userId) return;
+    setBannerUploading(true);
+
+    const { error } = await supabase.storage
+      .from('worker-assets')
+      .upload(`${userId}/banner.jpg`, file, { upsert: true, contentType: file.type });
+
+    if (!error) {
+      const { data } = supabase.storage
+        .from('worker-assets')
+        .getPublicUrl(`${userId}/banner.jpg`);
+      await supabase.from('workers').update({ banner_url: data.publicUrl }).eq('id', worker.id);
+      setWorker(prev => prev ? { ...prev, banner_url: data.publicUrl } : prev);
+    }
+    setBannerUploading(false);
   };
 
   const handleMediaFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -384,8 +406,35 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {/* Banner */}
+      <div className="relative h-40 bg-gradient-to-r from-[#f7f7f7] to-[#f2f2f2]">
+        {worker.banner_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={worker.banner_url} alt="封面照片" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <svg className="w-12 h-12 text-[#dddddd]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+            </svg>
+          </div>
+        )}
+        <button
+          onClick={() => bannerInputRef.current?.click()}
+          className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm text-[#222222] text-xs font-medium px-3 py-1.5 rounded-full shadow-sm hover:bg-white transition-colors"
+        >
+          {worker.banner_url ? '更換封面' : '上傳封面'}
+        </button>
+        {bannerUploading && (
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+        <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+      </div>
+
       {/* Header */}
-      <div className="bg-white px-4 pt-12 pb-6 border-b border-[#f2f2f2]">
+      <div className="bg-white px-4 pt-4 pb-6 border-b border-[#f2f2f2]">
         <div className="flex items-start justify-between mb-5">
           <div className="space-y-1">
             <span className={`pill-badge border ${statusCfg.color}`}>

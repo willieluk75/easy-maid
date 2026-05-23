@@ -112,7 +112,7 @@ OAuth redirect: `${window.location.origin}/profile` — add to Supabase dashboar
 - **Phase 2** ⬜ Role system (user_roles, employer registration)
 - **Phase 3** ⬜ Inquiry system
 - **Phase 4** ⬜ Bookmark system
-- **Phase 5** ⬜ Admin panel
+- **Phase 5** ✅ Admin panel (route guard, worker list, detail, approve/reject, status change)
 - **Phase 6** ⬜ UX improvements
 
 See `doc/SYSTEM_PLAN.md` for full roadmap.

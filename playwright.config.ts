@@ -26,16 +26,22 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:3000',
+        env: {
+          SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+        },
       },
-      testMatch: /workers-app\.spec\.ts/,
+      testMatch: [/workers-app\.spec\.ts$/, /phase6-worker\.spec\.ts$/],
     },
     {
       name: 'employer-app',
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:3001',
+        env: {
+          SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+        },
       },
-      testMatch: [/employer-app\.spec\.ts/, /phase[34].*\.spec\.ts/],
+      testMatch: [/employer-app\.spec\.ts$/, /phase[34].*\.spec\.ts$/, /phase6-employer\.spec\.ts$/],
     },
   ],
 

@@ -47,6 +47,8 @@ function workerSkills(w: Worker): string[] {
 export default function WorkersPage() {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [displayCount, setDisplayCount] = useState(20);
 
   useEffect(() => {
     supabase
@@ -60,11 +62,17 @@ export default function WorkersPage() {
       `)
       .in('status', ['available', 'processing'])
       .order('created_at', { ascending: false })
+      .limit(100)
       .then(({ data, error }) => {
         if (!error && data) setWorkers(data as Worker[]);
         setLoading(false);
       });
   }, []);
+
+  const q = searchQuery.toLowerCase();
+  const filteredWorkers = q
+    ? workers.filter(w => w.name.toLowerCase().includes(q))
+    : workers;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -74,21 +82,45 @@ export default function WorkersPage() {
         <Link href="/feed" className="text-sm text-blue-600 font-medium">動態</Link>
       </div>
 
+      {/* Search bar */}
+      <div className="sticky top-[49px] z-10 bg-white border-b border-gray-100 px-4 py-2">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="搜尋姓名..."
+          className="w-full rounded-full border border-[#dddddd] px-4 py-2 text-sm placeholder-[#929292] focus:outline-none focus:border-[#222222] transition-colors"
+        />
+      </div>
+
       {loading ? (
-        <div className="flex items-center justify-center py-24">
-          <p className="text-gray-400 text-sm">載入中...</p>
+        <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-start gap-4 bg-white rounded-2xl p-4">
+              <div className="w-16 h-16 rounded-xl bg-gray-200 animate-pulse flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
+                <div className="h-3 w-16 bg-gray-200 animate-pulse rounded" />
+                <div className="flex gap-1">
+                  <div className="h-5 w-14 bg-gray-200 animate-pulse rounded-full" />
+                  <div className="h-5 w-14 bg-gray-200 animate-pulse rounded-full" />
+                  <div className="h-5 w-14 bg-gray-200 animate-pulse rounded-full" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      ) : workers.length === 0 ? (
+      ) : filteredWorkers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-gray-400 space-y-2">
           <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <p className="text-sm">暫時沒有外傭資料</p>
+          <p className="text-sm">{q ? `沒有找到「${searchQuery}」` : '暫時沒有外傭資料'}</p>
         </div>
       ) : (
         <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
-          {workers.map(w => {
+          {filteredWorkers.slice(0, displayCount).map(w => {
             const skills = workerSkills(w);
             return (
               <Link
@@ -151,6 +183,14 @@ export default function WorkersPage() {
               </Link>
             );
           })}
+          {filteredWorkers.length > displayCount && (
+            <button
+              onClick={() => setDisplayCount(c => c + 20)}
+              className="w-full text-sm font-medium text-[#222222] py-3 rounded-full border border-[#dddddd] hover:bg-gray-50 transition-colors"
+            >
+              載入更多
+            </button>
+          )}
         </div>
       )}
     </div>

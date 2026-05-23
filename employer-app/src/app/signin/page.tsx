@@ -31,7 +31,7 @@ export default function SignIn() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push('/workers');
+      window.location.href = '/workers';
     }
   };
 

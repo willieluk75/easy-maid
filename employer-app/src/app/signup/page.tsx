@@ -60,7 +60,7 @@ export default function SignUp() {
     // 3. Insert user role
     await supabase.from('user_roles').insert({ user_id: userId, role: 'employer' });
 
-    router.push('/workers');
+    window.location.href = '/workers';
   };
 
   const handleGoogleSignUp = async () => {

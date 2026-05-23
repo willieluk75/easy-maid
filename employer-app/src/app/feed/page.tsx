@@ -77,17 +77,25 @@ const DEMO_FEED: FeedItem[] = [
 export default function FeedPage() {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const pathname = usePathname();
+
+  const PAGE_SIZE = 20;
 
   const fetchFeed = async (uid: string | null) => {
     const { data, error } = await supabase.rpc('get_feed', {
       p_user_id: uid,
+      p_offset: 0,
+      p_limit: PAGE_SIZE,
     });
     if (!error && data && data.length > 0) {
       setItems(data as FeedItem[]);
+      setHasMore(data.length >= PAGE_SIZE);
     } else {
       setItems([...DEMO_FEED]);
+      setHasMore(false);
     }
     setLoading(false);
   };
@@ -99,6 +107,25 @@ export default function FeedPage() {
       fetchFeed(uid);
     });
   }, []);
+
+  const isDemo = items.length > 0 && items[0].id.startsWith('demo-');
+
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore || isDemo) return;
+    setLoadingMore(true);
+    const { data, error } = await supabase.rpc('get_feed', {
+      p_user_id: userId,
+      p_offset: items.length,
+      p_limit: PAGE_SIZE,
+    });
+    if (!error && data && data.length > 0) {
+      setItems(prev => [...prev, ...(data as FeedItem[])]);
+      setHasMore(data.length >= PAGE_SIZE);
+    } else {
+      setHasMore(false);
+    }
+    setLoadingMore(false);
+  };
 
   const toggleLike = async (item: FeedItem, index: number) => {
     const newLiked = !item.liked;
@@ -298,6 +325,27 @@ export default function FeedPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Load More */}
+      {!loading && hasMore && !isDemo && (
+        <div className="max-w-lg mx-auto px-4 pb-4 flex justify-center">
+          <button
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+            className="px-6 py-3 bg-white text-[#222222] text-sm font-semibold rounded-full border border-[#dddddd] hover:bg-[#f7f7f7] transition-colors disabled:opacity-50"
+          >
+            {loadingMore ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                載入中...
+              </span>
+            ) : '載入更多'}
+          </button>
         </div>
       )}
 

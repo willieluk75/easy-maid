@@ -10,8 +10,19 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Easy Maid — 僱主",
-  description: "香港外傭招聘平台（僱主端）",
+  title: {
+    default: "Easy Maid 僱主 — 香港外傭招聘平台",
+    template: "%s | Easy Maid 僱主",
+  },
+  description: "Easy Maid 僱主端 — 瀏覽外傭資料、發送查詢、管理收藏",
+  keywords: ["香港外傭", "家庭傭工", "招聘", "Easy Maid", "僱主", "外傭平台"],
+  openGraph: {
+    title: "Easy Maid 僱主 — 香港外傭招聘平台",
+    description: "瀏覽外傭資料、發送查詢、管理收藏，輕鬆招聘合適的家庭傭工。",
+    siteName: "Easy Maid",
+    locale: "zh_TW",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

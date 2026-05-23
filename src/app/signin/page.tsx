@@ -48,7 +48,7 @@ export default function SignIn() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push('/profile');
+      window.location.href = '/profile';
     }
   };
 

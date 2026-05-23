@@ -145,6 +145,8 @@ export default function WorkersPage() {
   const [selectedNationality, setSelectedNationality] = useState<string>('');
   const [selectedSkills, setSelectedSkills] = useState<Set<keyof Worker>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [displayCount, setDisplayCount] = useState(20);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -169,6 +171,7 @@ export default function WorkersPage() {
         `)
         .in('status', ['available', 'processing'])
         .order('created_at', { ascending: false })
+        .limit(100)
         .then(({ data, error }) => {
           if (!error && data && data.length > 0) {
             setAllWorkers(data as Worker[]);
@@ -183,7 +186,9 @@ export default function WorkersPage() {
     });
   }, []);
 
+  const sq = searchQuery.toLowerCase();
   const filtered = allWorkers.filter(w => {
+    if (sq && !w.name.toLowerCase().includes(sq)) return false;
     if (selectedNationality && w.nationality !== selectedNationality) return false;
     if (selectedSkills.size > 0) {
       for (const skill of selectedSkills) {
@@ -227,6 +232,17 @@ export default function WorkersPage() {
               {hasFilters ? `篩選 (${selectedSkills.size + (selectedNationality ? 1 : 0)})` : '篩選'}
             </button>
           </div>
+        </div>
+
+        {/* Search bar */}
+        <div className="max-w-lg mx-auto px-4 pb-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="搜尋姓名..."
+            className="w-full rounded-full border border-[#dddddd] px-4 py-2 text-sm placeholder-[#929292] focus:outline-none focus:border-[#222222] transition-colors"
+          />
         </div>
 
         {/* Filter panel */}
@@ -285,6 +301,11 @@ export default function WorkersPage() {
           <p className="text-xs text-[#929292]">找到 {filtered.length} 位外傭</p>
         </div>
       )}
+      {!hasFilters && sq && (
+        <div className="max-w-lg mx-auto px-4 pt-3">
+          <p className="text-xs text-[#929292]">找到 {filtered.length} 位外傭</p>
+        </div>
+      )}
 
       {loading ? (
         <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
@@ -323,7 +344,7 @@ export default function WorkersPage() {
         </div>
       ) : (
         <div className="max-w-lg mx-auto px-4 py-4 space-y-3">
-          {filtered.map(w => {
+          {filtered.slice(0, displayCount).map(w => {
             const skills = workerSkills(w);
             return (
               <Link
@@ -389,6 +410,14 @@ export default function WorkersPage() {
               </Link>
             );
           })}
+          {filtered.length > displayCount && (
+            <button
+              onClick={() => setDisplayCount(c => c + 20)}
+              className="w-full text-sm font-medium text-[#222222] py-3 rounded-full border border-[#dddddd] hover:bg-[#f7f7f7] transition-colors"
+            >
+              載入更多
+            </button>
+          )}
         </div>
       )}
 

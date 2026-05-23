@@ -86,7 +86,7 @@ export default function SignUp() {
       setSuccess(true);
       setLoading(false);
       setTimeout(() => {
-        router.push('/profile');
+        window.location.href = '/profile';
       }, 2000);
     }
   };
