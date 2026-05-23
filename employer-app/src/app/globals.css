@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Fix: Tailwind v4 preflight sets a{color:inherit} which breaks text-white on Links */
+a { color: revert-layer; }
+
 :root {
   --canvas-white: #ffffff;
   --ink-black: #222222;
